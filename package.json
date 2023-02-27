@@ -75,7 +75,7 @@
     }
   },
   "lint-staged": {
-    "*.(json|ts)": "prettier --write",
+    "*.(json|md|ts)": "prettier --write",
     "*.ts": "eslint"
   }
 }
