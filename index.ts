@@ -8,6 +8,7 @@
 
 import { launch } from './run.js'
 import type { LocalElasticSearch } from './run.js'
+import { populate } from './data.js'
 
 /**
  * Convert a string to a suitable name for an OpenSearch Serverless collection.
@@ -126,8 +127,16 @@ export const deploy = {
 let local: LocalElasticSearch
 
 export const sandbox = {
-  async start() {
+  async start({
+    inventory: {
+      inv: {
+        // @ts-expect-error: The Architect plugins API has no type definitions.
+        _project: { cwd },
+      },
+    },
+  }) {
     local = await launch({})
+    await populate(cwd, { node: local.url })
   },
   async end() {
     await local.stop()
