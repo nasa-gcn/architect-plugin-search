@@ -54,11 +54,12 @@ async function download(url: string) {
 export async function install() {
   const { name, ext } = getFilename()
   const extractPath = join(cache, name)
+  const binExt = os.type() === 'Windows_NT' ? '.bat' : ''
   const binPath = join(
     extractPath,
     `elasticsearch-${version}`,
     'bin',
-    'elasticsearch'
+    `elasticsearch${binExt}`
   )
   const binPathExists = await exists(binPath)
 
