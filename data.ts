@@ -8,6 +8,7 @@
 
 import { readFile } from 'fs/promises'
 import { join } from 'path'
+import { pathToFileURL } from 'url'
 import { Client } from '@opensearch-project/opensearch'
 import type { ClientOptions } from '@opensearch-project/opensearch'
 import { exists } from './paths'
@@ -25,7 +26,7 @@ async function getData(path: string) {
     result = JSON.parse(await readFile(jsonPath, { encoding: 'utf-8' }))
   } else if (await exists(jsPath)) {
     console.log(`Loading search records from ${jsPath}`)
-    result = (await import(jsPath)).default
+    result = (await import(pathToFileURL(jsPath).toString())).default
     if (typeof result === 'function') {
       result = result()
     }
