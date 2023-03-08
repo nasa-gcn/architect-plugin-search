@@ -9,6 +9,14 @@
 import { launch } from './run.js'
 import type { LocalElasticSearch } from './run.js'
 import { populate } from './data.js'
+import {
+  cloudformationResources as serverlessCloudformationResources,
+  services as serverlessServices,
+} from './serverless.js'
+import {
+  cloudformationResources as serviceCloudformationResources,
+  services as serviceServices,
+} from './service.js'
 
 /**
  * Convert a string to a suitable name for an OpenSearch Serverless collection.
@@ -26,101 +34,27 @@ function toCollectionName(name: string) {
 
 export const deploy = {
   // @ts-expect-error: The Architect plugins API has no type definitions.
-  start({ cloudformation, inventory, stage }) {
-    const { app } = inventory.inv
-    const Name = toCollectionName(`${app}-${stage}`)
-
-    Object.assign(cloudformation.Resources, {
-      OpenSearchServerlessCollection: {
-        Type: 'AWS::OpenSearchServerless::Collection',
-        DependsOn: [
-          'OpenSearchServerlessSecurityPolicyEncryption',
-          'OpenSearchServerlessSecurityPolicyNetwork',
-          'OpenSearchServerlessAccessPolicy',
-        ],
-        Properties: {
-          Name,
-          Type: 'SEARCH',
-        },
-      },
-      OpenSearchServerlessSecurityPolicyEncryption: {
-        Type: 'AWS::OpenSearchServerless::SecurityPolicy',
-        Properties: {
-          Type: 'encryption',
-          Name,
-          Policy: JSON.stringify({
-            Rules: [
-              {
-                ResourceType: 'collection',
-                Resource: [`collection/${Name}`],
-              },
-            ],
-            AWSOwnedKey: true,
-          }),
-        },
-      },
-      OpenSearchServerlessSecurityPolicyNetwork: {
-        Type: 'AWS::OpenSearchServerless::SecurityPolicy',
-        Properties: {
-          Type: 'network',
-          Name,
-          Policy: JSON.stringify([
-            {
-              Rules: [
-                {
-                  ResourceType: 'collection',
-                  Resource: [`collection/${Name}`],
-                },
-              ],
-              AllowFromPublic: true,
-            },
-          ]),
-        },
-      },
-      OpenSearchServerlessAccessPolicy: {
-        Type: 'AWS::OpenSearchServerless::AccessPolicy',
-        Properties: {
-          Type: 'data',
-          Name,
-          Policy: {
-            'Fn::Sub': [
-              JSON.stringify([
-                {
-                  Rules: [
-                    {
-                      ResourceType: 'collection',
-                      Resource: [`collection/${Name}`],
-                      Permission: ['aoss:*'],
-                    },
-                    {
-                      ResourceType: 'index',
-                      Resource: [`index/${Name}/*`],
-                      Permission: ['aoss:*'],
-                    },
-                  ],
-                  // eslint-disable-next-line no-template-curly-in-string
-                  Principal: ['${Role}'],
-                },
-              ]),
-              {
-                Role: { 'Fn::GetAtt': 'Role.Arn' },
-              },
-            ],
-          },
-        },
-      },
-    })
+  start({ cloudformation, inventory, arc, stage }) {
+    let resources
+    if (arc.search) {
+      resources = serviceCloudformationResources(Object.fromEntries(arc.search))
+    } else {
+      const { app } = inventory.inv
+      const collectionName = toCollectionName(`${app}-${stage}`)
+      resources = serverlessCloudformationResources(collectionName)
+    }
+    Object.assign(cloudformation.Resources, resources)
     return cloudformation
   },
   // @ts-expect-error: The Architect plugins API has no type definitions.
-  services({ stage }) {
-    const node =
-      stage === 'production'
-        ? {
-            'Fn::GetAtt': 'OpenSearchServerlessCollection.CollectionEndpoint',
-          }
-        : 'http://localhost:9200'
-    return { node }
+  services({ stage, arc }) {
+    if (stage !== 'production') {
+      return { node: 'http://localhost:9200' }
+    } else if (arc.search) {
+      return serviceServices
+    } else {
+      return serverlessServices
+    }
   },
 }
 
