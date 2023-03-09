@@ -1,3 +1,5 @@
+[![npm](https://img.shields.io/npm/v/@nasa-gcn/architect-plugin-search)](https://www.npmjs.com/package/@nasa-gcn/architect-plugin-search)
+
 # Architect plugin for OpenSearch / ElasticSearch
 
 This is a [plugin](https://arc.codes/docs/en/guides/plugins/overview) for [Architect](https://arc.codes/) that provisions managed [Amazon OpenSearch](https://aws.amazon.com/opensearch-service/) for the application.
