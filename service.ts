@@ -58,6 +58,9 @@ export function cloudformationResources({
 }
 
 export const services = {
+  name: {
+    Ref: 'OpenSearchServiceDomain',
+  },
   node: {
     'Fn::Sub': [
       'https://${DomainEndpoint}',
