@@ -8,6 +8,8 @@
 
 export function cloudformationResources({
   availabilityZoneCount,
+  dedicatedMasterCount,
+  dedicatedMasterType,
   instanceCount,
   instanceType,
   volumeSize,
@@ -22,6 +24,16 @@ export function cloudformationResources({
   const InstanceCount = parseInt(instanceCount)
   const VolumeSize = parseInt(volumeSize)
   const ZoneAwarenessEnabled = AvailabilityZoneCount > 1
+
+  const DedicatedMasterCount =
+    (dedicatedMasterCount && parseInt(dedicatedMasterCount)) || undefined
+  const DedicatedMasterEnabled = Boolean(DedicatedMasterCount)
+  const DedicatedMasterType = dedicatedMasterType
+  if (DedicatedMasterEnabled && !DedicatedMasterType) {
+    throw new Error(
+      'dedicatedMasterType must be defined because dedicateMasterCount > 0'
+    )
+  }
 
   return {
     OpenSearchServiceDomain: {
@@ -39,6 +51,9 @@ export function cloudformationResources({
           ],
         },
         ClusterConfig: {
+          DedicatedMasterCount,
+          DedicatedMasterEnabled,
+          DedicatedMasterType,
           InstanceType: instanceType,
           InstanceCount,
           ZoneAwarenessEnabled,
