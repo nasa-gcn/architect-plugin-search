@@ -26,6 +26,10 @@ Pair this pacakge with [@nasa-gcn/architect-functions-search](https://github.com
         instanceType t3.small.search
         instanceCount 2
         availabilityZoneCount 2
+        # dedicatedMasterCount is optional; if zero or undefined, dedicated
+        # master nodes are disabled.
+        dedicatedMasterCount 3
+        dedicatedMasterType t3.small.search
 
 4.  Optionally, create a file called `sandbox-search.json` or `sandbox-search.js` in your project and populate it with sample data to be passed to [`client.bulk()`](https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/bulk_examples.html). Here are some examples.
 
