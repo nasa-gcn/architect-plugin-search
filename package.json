@@ -21,6 +21,9 @@
     "prepare:esbuild": "esbuild index.ts --bundle --packages=external --outfile=index.js --platform=node --format=esm --tree-shaking=true",
     "prepare": "run-p prepare:*"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@opensearch-project/opensearch": "^2.2.0",
     "env-paths": "^3.0.0",
