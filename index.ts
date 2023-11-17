@@ -7,7 +7,7 @@
  */
 
 import { launch } from './run.js'
-import type { LocalElasticSearch } from './run.js'
+import type { LocalOpenSearch } from './run.js'
 import { populate } from './data.js'
 import {
   cloudformationResources as serverlessCloudformationResources,
@@ -58,7 +58,7 @@ export const deploy = {
   },
 }
 
-let local: LocalElasticSearch
+let local: LocalOpenSearch
 
 export const sandbox = {
   async start({

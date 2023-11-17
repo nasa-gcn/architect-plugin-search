@@ -21,7 +21,7 @@ import {
 import { pipeline } from 'stream/promises'
 import { createReadStream } from 'fs'
 
-export class LocalElasticSearch {
+export class LocalOpenSearch {
   private readonly child!: ChildProcess
   private readonly tempDir!: string
   readonly port!: number
@@ -55,7 +55,6 @@ export class LocalElasticSearch {
         `-Epath.logs=${logsDir}`,
         `-Ehttp.port=${port}`,
         '-Ediscovery.type=single-node',
-        '-Expack.security.enabled=false',
       ]
 
       console.log('Spawning', bin, ...args)
@@ -70,12 +69,12 @@ export class LocalElasticSearch {
         ])
       } catch (e) {
         await pipeline(
-          createReadStream(join(logsDir, 'elasticsearch.log')),
+          createReadStream(join(logsDir, 'opensearch.log')),
           process.stderr
         )
         throw e
       }
-      console.log('ElasticSearch is ready at', url)
+      console.log('OpenSearch is ready at', url)
     } catch (e) {
       await rimraf(tempDir)
       throw e
@@ -94,7 +93,7 @@ export class LocalElasticSearch {
 }
 
 export async function launch(
-  ...args: Parameters<typeof LocalElasticSearch.launch>
+  ...args: Parameters<typeof LocalOpenSearch.launch>
 ) {
-  return await LocalElasticSearch.launch(...args)
+  return await LocalOpenSearch.launch(...args)
 }
