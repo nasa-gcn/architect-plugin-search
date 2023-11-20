@@ -9,6 +9,7 @@
 import { launch } from './run.js'
 import type { LocalOpenSearch } from './run.js'
 import { populate } from './data.js'
+import { deploy_ml_model } from './ml.js'
 import {
   cloudformationResources as serverlessCloudformationResources,
   services as serverlessServices,
@@ -70,6 +71,7 @@ export const sandbox = {
     },
   }) {
     local = await launch({})
+    await deploy_ml_model({ node: local.url })
     await populate(cwd, { node: local.url })
   },
   async end() {
