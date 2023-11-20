@@ -76,7 +76,7 @@ export async function deploy_ml_model(opts: ClientOptions) {
     method: 'POST',
     path: '/_plugins/_ml/models/_register',
     body: {
-      name: 'huggingface/sentence-transformers/all-distilroberta-v1',
+      name: 'huggingface/sentence-transformers/all-MiniLM-L6-v2',
       version: '1.0.1',
       model_group_id: model_group_id,
       model_format: 'TORCH_SCRIPT',
@@ -260,7 +260,7 @@ export async function deploy_ml_model(opts: ClientOptions) {
           },
           circular_embedding: {
             type: 'knn_vector',
-            dimension: 768,
+            dimension: 384,
             method: {
               engine: 'lucene',
               space_type: 'l2',
