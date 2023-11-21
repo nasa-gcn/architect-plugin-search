@@ -12,6 +12,7 @@ import { pathToFileURL } from 'url'
 import { Client } from '@opensearch-project/opensearch'
 import type { ClientOptions } from '@opensearch-project/opensearch'
 import { exists } from './paths'
+import _ from 'lodash'
 
 const jsonFilename = 'sandbox-search.json'
 const jsFilename = 'sandbox-search.js'
@@ -45,10 +46,9 @@ export async function populate(path: string, opts: ClientOptions) {
   if (data) {
     const client = new Client(opts)
     const batch_size = 10
-    for (let i = 0; i < data.length; i += batch_size) {
-      const batch = data.slice(i, i + batch_size)
+    const batches = _.chunk(data, batch_size)
+    batches.forEach(async (batch: object[]) => {
       await client.bulk({ body: batch })
-      console.log(`Indexed ${batch.length + i} records`)
-    }
+    })
   }
 }
