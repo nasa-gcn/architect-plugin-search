@@ -13,35 +13,35 @@ import fetch from 'make-fetch-happen'
 import { Extract as unzip } from 'unzip-stream'
 import { x as untar } from 'tar'
 import { cache, exists, mkdirP } from './paths.js'
+import { writeFile } from 'fs/promises'
 
-const version = '8.6.2'
+const version = '2.11.0'
 
 const types = new Map([
   ['Linux', ['linux', 'tar.gz']],
-  ['Darwin', ['darwin', 'tar.gz']],
   ['Windows_NT', ['windows', 'zip']],
 ])
 
-const archs = new Map([
-  ['x64', 'x86_64'],
-  ['arm64', 'aarch64'],
-])
+const archs = ['x64', 'arm64']
 
 function getFilename() {
   const os_type = os.type()
   const os_arch = os.arch()
 
   const typeInfo = types.get(os_type)
-  const arch = archs.get(os_arch)
 
-  if (!typeInfo || !arch) {
+  if (
+    !typeInfo ||
+    !archs.includes(os_arch) ||
+    (os_type === 'Windows_NT' && os_arch === 'arm64')
+  ) {
     throw new Error(
-      `No ElasticSearch binary is available for your OS type (${os_type}) and architecture (${os_arch}). For supported operating systems, see https://www.elastic.co/downloads/elasticsearch.`
+      `No OpenSearch binary is available for your OS type (${os_type}) and architecture (${os_arch}). For supported operating systems, see https://opensearch.org/versions/opensearch-2-11-0.html.`
     )
   }
 
   const [type, ext] = typeInfo
-  return { name: `elasticsearch-${version}-${type}-${arch}`, ext }
+  return { name: `opensearch-${version}-${type}-${os_arch}`, ext }
 }
 
 async function download(url: string) {
@@ -57,14 +57,15 @@ export async function install() {
   const binExt = os.type() === 'Windows_NT' ? '.bat' : ''
   const binPath = join(
     extractPath,
-    `elasticsearch-${version}`,
+    `opensearch-${version}`,
     'bin',
-    `elasticsearch${binExt}`
+    `opensearch${binExt}`
   )
+
   const binPathExists = await exists(binPath)
 
   if (!binPathExists) {
-    const url = `https://artifacts.elastic.co/downloads/elasticsearch/${name}.${ext}`
+    const url = `https://artifacts.opensearch.org/releases/bundle/opensearch/${version}/${name}.${ext}`
     const stream = await download(url)
 
     let extract
