@@ -44,6 +44,11 @@ export async function populate(path: string, opts: ClientOptions) {
   const data = await getData(path)
   if (data) {
     const client = new Client(opts)
-    await client.bulk({ body: data })
+    const batch_size = 10
+    for (let i = 0; i < data.length; i += batch_size) {
+      const batch = data.slice(i, i + batch_size)
+      await client.bulk({ body: batch })
+      console.log(`Indexed ${batch.length + i} records`)
+    }
   }
 }
