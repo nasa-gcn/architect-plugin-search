@@ -17,7 +17,7 @@ import chunk from 'lodash/chunk'
 const jsonFilename = 'sandbox-search.json'
 const jsFilename = 'sandbox-search.js'
 
-async function getData(path: string) {
+async function getData(path: string): Promise<object[]> {
   let result
   const jsonPath = join(path, jsonFilename)
   const jsPath = join(path, jsFilename)
@@ -47,7 +47,7 @@ export async function populate(path: string, opts: ClientOptions) {
     const client = new Client(opts)
     const batch_size = 10
     const batches = chunk(data, batch_size)
-    batches.forEach(async (batch: object[]) => {
+    batches.forEach(async (batch) => {
       await client.bulk({ body: batch })
     })
   }
