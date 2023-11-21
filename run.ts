@@ -55,6 +55,7 @@ export class LocalOpenSearch {
         `-Epath.logs=${logsDir}`,
         `-Ehttp.port=${port}`,
         '-Ediscovery.type=single-node',
+        '-Eplugins.security.disabled=true',
       ]
 
       console.log('Spawning', bin, ...args)
