@@ -46,7 +46,7 @@ export async function populate(path: string, opts: ClientOptions) {
   if (data) {
     const client = new Client(opts)
     const batch_size = 10
-    const batches = _.chunk(data, batch_size)
+    const batches = chunk(data, batch_size)
     batches.forEach(async (batch: object[]) => {
       await client.bulk({ body: batch })
     })
