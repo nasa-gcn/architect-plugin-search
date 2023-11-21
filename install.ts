@@ -61,15 +61,6 @@ export async function install() {
     'bin',
     `opensearch${binExt}`
   )
-  const configPath = join(
-    extractPath,
-    `opensearch-${version}`,
-    'config',
-    'opensearch.yml'
-  )
-  await writeFile(configPath, 'plugins.security.disabled: true\n', {
-    flag: 'w',
-  })
 
   const binPathExists = await exists(binPath)
 
