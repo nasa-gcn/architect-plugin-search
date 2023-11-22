@@ -12,11 +12,12 @@ import { pathToFileURL } from 'url'
 import { Client } from '@opensearch-project/opensearch'
 import type { ClientOptions } from '@opensearch-project/opensearch'
 import { exists } from './paths'
+import chunk from 'lodash/chunk'
 
 const jsonFilename = 'sandbox-search.json'
 const jsFilename = 'sandbox-search.js'
 
-async function getData(path: string) {
+async function getData(path: string): Promise<object[]> {
   let result
   const jsonPath = join(path, jsonFilename)
   const jsPath = join(path, jsFilename)
@@ -44,6 +45,10 @@ export async function populate(path: string, opts: ClientOptions) {
   const data = await getData(path)
   if (data) {
     const client = new Client(opts)
-    await client.bulk({ body: data })
+    const batch_size = 10
+    const batches = chunk(data, batch_size)
+    for (const batch of batches) {
+      await client.bulk({ body: batch })
+    }
   }
 }
