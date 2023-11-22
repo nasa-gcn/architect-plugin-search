@@ -13,7 +13,6 @@ import fetch from 'make-fetch-happen'
 import { Extract as unzip } from 'unzip-stream'
 import { x as untar } from 'tar'
 import { cache, exists, mkdirP } from './paths.js'
-import { writeFile } from 'fs/promises'
 
 const version = '2.11.0'
 
