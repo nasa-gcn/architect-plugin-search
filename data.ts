@@ -12,7 +12,7 @@ import { pathToFileURL } from 'url'
 import { Client } from '@opensearch-project/opensearch'
 import type { ClientOptions } from '@opensearch-project/opensearch'
 import { exists } from './paths'
-import chunk from 'lodash/chunk'
+import chunk from 'lodash/chunk.js'
 
 const jsonFilename = 'sandbox-search.json'
 const jsFilename = 'sandbox-search.js'
