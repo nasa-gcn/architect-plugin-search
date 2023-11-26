@@ -4,7 +4,7 @@
 
 This is a [plugin](https://arc.codes/docs/en/guides/plugins/overview) for [Architect](https://arc.codes/) that provisions managed [Amazon OpenSearch](https://aws.amazon.com/opensearch-service/) for the application.
 
-When you are using Architect's [sandbox](https://arc.codes/docs/en/reference/cli/sandbox) mode, the plugin [downloads and runs Elasticsearch locally](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html#elasticsearch-install-packages).
+When you are using Architect's [sandbox](https://arc.codes/docs/en/reference/cli/sandbox) mode, the plugin [downloads and runs OpenSearch locally](https://opensearch.org/downloads.html#opensearch).
 
 Pair this pacakge with [@nasa-gcn/architect-functions-search](https://github.com/nasa-gcn/architect-functions-search) to connect to the service from your Node.js Lambda function code.
 
@@ -31,7 +31,7 @@ Pair this pacakge with [@nasa-gcn/architect-functions-search](https://github.com
         dedicatedMasterCount 3
         dedicatedMasterType t3.small.search
 
-4.  Optionally, create a file called `sandbox-search.json` or `sandbox-search.js` in your project and populate it with sample data to be passed to [`client.bulk()`](https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/bulk_examples.html). Here are some examples.
+4.  Optionally, create a file called `sandbox-search.json` or `sandbox-search.js` in your project and populate it with sample data to be passed to [`client.bulk()`](https://github.com/opensearch-project/opensearch-js/blob/main/guides/bulk.md). Here are some examples.
 
     ## sandbox-search.json
 
