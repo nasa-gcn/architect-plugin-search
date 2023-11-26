@@ -61,3 +61,41 @@ Pair this pacakge with [@nasa-gcn/architect-functions-search](https://github.com
                 {"title": "Star Trek II: The Wrath of Khan"}
             ]
         }
+
+## Connecting to OpenSearch from your application
+
+In your Architect application, use the [@nasa-gcn/architect-functions-search](https://github.com/nasa-gcn/architect-functions-search) package to connect to your OpenSearch instance. To install the package, run:
+
+```
+npm i @nasa-gcn/architect-functions-search
+```
+
+Then add the following JavaScript code to your application:
+
+```ts
+import { search } from '@nasa-gcn/architect-functions-search'
+
+const client = await search()
+```
+
+Now `client` is an instance of the [OpenSearch JavaScript client](https://opensearch.org/docs/latest/clients/javascript/index/), and you can call any client method on it — for example, [`client.index.create()`](https://opensearch.org/docs/latest/clients/javascript/index/#creating-an-index), [`client.index()`](https://opensearch.org/docs/latest/clients/javascript/index/#indexing-a-document), or [`client.search()`](https://opensearch.org/docs/latest/clients/javascript/index/#searching-for-documents).
+
+## Advanced usage from your application
+
+If you would like to manually connect to OpenSearch from your application, then you will need to sign your requests using [AWS SIG4](https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html); the OpenSearch client library provides the [`AwsSigv4Signer`](https://opensearch.org/docs/latest/clients/javascript/index/#authenticating-with-amazon-opensearch-service--aws-sigv4) helper to automate this.
+
+You can read the API endpoint information using [Architect service discovery](<https://arc.codes/docs/en/reference/runtime-helpers/node.js#arc.services()>):
+
+```ts
+import * as arc from '@architect/functions'
+
+const services = await arc.services()
+const searchConfig = services.nasa_gcn - architect_plugin_search
+```
+
+The `searchConfig` object has the following two properties:
+
+- `searchConfig.node`: the URL of the API endpoint.
+- `searchConfig.sig4service`: the value to pass for the `service` property in the ``AwsSigv4Signer` constructor.
+
+See https://github.com/nasa-gcn/architect-functions-search/blob/main/index.ts for example code.
