@@ -30,9 +30,10 @@ export async function install(engine: SandboxEngine) {
       entry.engine === engine && entry.arch === arch && entry.type === type
   )?.url
   if (!url) {
-    throw new Error(
+    console.warn(
       `No ${engine} binary is available for your OS type (${type}) and architecture (${arch}).`
     )
+    return
   }
 
   const archiveFilename = posix

@@ -57,24 +57,48 @@ export class LocalSearch {
       const logsDir = join(tempDir, 'logs')
       await Promise.all([dataDir, logsDir].map(mkdirP))
 
-      const args: string[] = [
-        `-Epath.data=${dataDir}`,
-        `-Epath.logs=${logsDir}`,
-        `-Ehttp.port=${port}`,
-        '-Ediscovery.type=single-node',
+      let command
+      let args = []
+      const opts = [
+        `http.port=${port}`,
+        'discovery.type=single-node',
         engine === 'elasticsearch'
-          ? '-Expack.security.enabled=false'
-          : '-Eplugins.security.disabled=true',
+          ? 'xpack.security.enabled=false'
+          : 'plugins.security.disabled=true',
       ]
 
-      console.log('Spawning', bin, ...args)
-      child = await spawn(bin, args, {
+      if (bin) {
+        command = bin
+        opts.push(`path.data=${dataDir}`, `path.logs=${logsDir}`)
+        args = opts.map((opt) => `-E${opt}`)
+      } else {
+        command = 'docker'
+        opts.push('path.data=/docker.data', 'path.logs=/docker.logs')
+        args = [
+          'run',
+          '--rm',
+          '-i',
+          '-p',
+          `${port}:${port}`,
+          '-v',
+          `${dataDir}:/docker.data`,
+          '-v',
+          `${logsDir}:/docker.logs`,
+          ...opts.flatMap((opt) => ['-e', opt]),
+          engine === 'elasticsearch'
+            ? 'elastic/elasticsearch:8.6.2'
+            : 'opensearchproject/opensearch:2.11.0',
+        ]
+      }
+
+      console.log('Spawning', command, ...args)
+      child = await spawn(command, args, {
         stdio: ['ignore', 'ignore', 'inherit'],
       })
 
       try {
         await Promise.race([
-          waitPort({ port }),
+          waitPort({ port, protocol: 'http' }),
           untilTerminatedUnexpectedly(child),
         ])
       } catch (e) {
