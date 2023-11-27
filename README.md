@@ -96,6 +96,6 @@ const searchConfig = services.nasa_gcn - architect_plugin_search
 The `searchConfig` object has the following two properties:
 
 - `searchConfig.node`: the URL of the API endpoint.
-- `searchConfig.sig4service`: the value to pass for the `service` property in the ``AwsSigv4Signer` constructor.
+- `searchConfig.sig4service`: the value to pass for the `service` property in the `AwsSigv4Signer` constructor.
 
 See https://github.com/nasa-gcn/architect-functions-search/blob/main/index.ts for example code.
