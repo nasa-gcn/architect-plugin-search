@@ -8,40 +8,12 @@
 
 import os from 'os'
 import { pipeline } from 'stream/promises'
-import { join } from 'path'
+import { join, posix } from 'path'
 import fetch from 'make-fetch-happen'
 import { Extract as unzip } from 'unzip-stream'
 import { x as untar } from 'tar'
 import { cache, exists, mkdirP } from './paths.js'
-
-const version = '2.11.0'
-
-const types = new Map([
-  ['Linux', ['linux', 'tar.gz']],
-  ['Windows_NT', ['windows', 'zip']],
-])
-
-const archs = ['x64', 'arm64']
-
-function getFilename() {
-  const os_type = os.type()
-  const os_arch = os.arch()
-
-  const typeInfo = types.get(os_type)
-
-  if (
-    !typeInfo ||
-    !archs.includes(os_arch) ||
-    (os_type === 'Windows_NT' && os_arch === 'arm64')
-  ) {
-    throw new Error(
-      `No OpenSearch binary is available for your OS type (${os_type}) and architecture (${os_arch}). For supported operating systems, see https://opensearch.org/versions/opensearch-2-11-0.html.`
-    )
-  }
-
-  const [type, ext] = typeInfo
-  return { name: `opensearch-${version}-${type}-${os_arch}`, ext }
-}
+import { SandboxEngine, manifest } from './engines.js'
 
 async function download(url: string) {
   console.log('Downloading', url, 'to', cache)
@@ -50,21 +22,34 @@ async function download(url: string) {
   return body
 }
 
-export async function install() {
-  const { name, ext } = getFilename()
-  const extractPath = join(cache, name)
-  const binExt = os.type() === 'Windows_NT' ? '.bat' : ''
+export async function install(engine: SandboxEngine) {
+  const type = os.type()
+  const arch = os.arch()
+  const url = manifest.find(
+    (entry) =>
+      entry.engine === engine && entry.arch === arch && entry.type === type
+  )?.url
+  if (!url) {
+    throw new Error(
+      `No ${engine} binary is available for your OS type (${type}) and architecture (${arch}).`
+    )
+  }
+
+  const archiveFilename = posix
+    .basename(new URL(url).pathname)
+    .replace(/(.tar.gz|.zip)$/, '')
+  const extractPath = join(cache, archiveFilename)
+  const binExt = type === 'Windows_NT' ? '.bat' : ''
   const binPath = join(
     extractPath,
-    `opensearch-${version}`,
+    archiveFilename.split('-').slice(0, 2).join('-'),
     'bin',
-    `opensearch${binExt}`
+    `${engine}${binExt}`
   )
 
   const binPathExists = await exists(binPath)
 
   if (!binPathExists) {
-    const url = `https://artifacts.opensearch.org/releases/bundle/opensearch/${version}/${name}.${ext}`
     const stream = await download(url)
 
     let extract

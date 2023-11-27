@@ -68,8 +68,15 @@ export const deploy = {
 
 let local: LocalSearch
 
+function getEngine(name?: string) {
+  if (name?.toLowerCase() === 'opensearch') return 'opensearch'
+  else return 'elasticsearch'
+}
+
 export const sandbox = {
   async start({
+    // @ts-expect-error: The Architect plugins API has no type definitions.
+    arc,
     inventory: {
       inv: {
         // @ts-expect-error: The Architect plugins API has no type definitions.
@@ -77,7 +84,8 @@ export const sandbox = {
       },
     },
   }) {
-    local = await launch({})
+    const engine = getEngine(getConfig(arc).sandboxEngine)
+    local = await launch({ engine })
     await populate(cwd, { node: local.url })
   },
   async end() {
