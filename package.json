@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@opensearch-project/opensearch": "^2.2.0",
+    "dockerode": "^4.0.0",
     "env-paths": "^3.0.0",
     "lodash": "^4.17.21",
     "make-fetch-happen": "^11.0.3",
@@ -37,6 +38,7 @@
   "devDependencies": {
     "@nasa-gcn/eslint-config-gitignore": "^0.0.1",
     "@tsconfig/node14": "^1.0.3",
+    "@types/dockerode": "^3.3.23",
     "@types/lodash": "^4.14.202",
     "@types/make-fetch-happen": "^10.0.1",
     "@types/node": "^18.13.0",

@@ -26,22 +26,3 @@ export async function untilTerminated(child: ChildProcess) {
     child.on('exit', resolve).on('error', reject)
   })
 }
-
-class UnexpectedTerminationError extends Error {
-  readonly exitStatus: number | null
-
-  constructor(exitStatus: number | null) {
-    super('Child process terminated unexpectedly with exit status ${number}')
-    this.exitStatus = exitStatus
-  }
-}
-
-export async function untilTerminatedUnexpectedly(child: ChildProcess) {
-  return new Promise<number | null>((_resolve, reject) => {
-    child
-      .on('exit', (exitStatus) =>
-        reject(new UnexpectedTerminationError(exitStatus))
-      )
-      .on('error', reject)
-  })
-}
