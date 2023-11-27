@@ -20,6 +20,7 @@ import {
 } from './processes.js'
 import { pipeline } from 'stream/promises'
 import { createReadStream } from 'fs'
+import type { SandboxEngine } from './engines.js'
 
 export class LocalSearch {
   private readonly child!: ChildProcess
@@ -36,11 +37,17 @@ export class LocalSearch {
     return Object.assign(this, props)
   }
 
-  static async launch({ port }: { port?: number }) {
+  static async launch({
+    port,
+    engine,
+  }: {
+    port?: number
+    engine: SandboxEngine
+  }) {
     port ??= 9200
     const url = `http://localhost:${port}`
 
-    const bin = await install()
+    const bin = await install(engine)
     let child
 
     await mkdirP(temp)
@@ -55,7 +62,9 @@ export class LocalSearch {
         `-Epath.logs=${logsDir}`,
         `-Ehttp.port=${port}`,
         '-Ediscovery.type=single-node',
-        '-Eplugins.security.disabled=true',
+        engine === 'elasticsearch'
+          ? '-Expack.security.enabled=false'
+          : '-Eplugins.security.disabled=true',
       ]
 
       console.log('Spawning', bin, ...args)
@@ -75,7 +84,7 @@ export class LocalSearch {
         )
         throw e
       }
-      console.log('OpenSearch is ready at', url)
+      console.log(`${engine} is ready at`, url)
     } catch (e) {
       await rimraf(tempDir)
       throw e
