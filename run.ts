@@ -21,7 +21,7 @@ import {
 import { pipeline } from 'stream/promises'
 import { createReadStream } from 'fs'
 
-export class LocalOpenSearch {
+export class LocalSearch {
   private readonly child!: ChildProcess
   private readonly tempDir!: string
   readonly port!: number
@@ -93,8 +93,6 @@ export class LocalOpenSearch {
   }
 }
 
-export async function launch(
-  ...args: Parameters<typeof LocalOpenSearch.launch>
-) {
-  return await LocalOpenSearch.launch(...args)
+export async function launch(...args: Parameters<typeof LocalSearch.launch>) {
+  return await LocalSearch.launch(...args)
 }
