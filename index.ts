@@ -32,12 +32,20 @@ function toCollectionName(name: string) {
     .slice(0, 32)
 }
 
+function getConfig(arc: {
+  search?: string[][]
+}): Record<string, string | undefined> {
+  if (arc.search) return Object.fromEntries(arc.search)
+  else return {}
+}
+
 export const deploy = {
   // @ts-expect-error: The Architect plugins API has no type definitions.
   start({ cloudformation, inventory, arc, stage }) {
     let resources
-    if (arc.search) {
-      resources = serviceCloudformationResources(Object.fromEntries(arc.search))
+    const config = getConfig(arc)
+    if (config.availabilityZoneCount) {
+      resources = serviceCloudformationResources(config)
     } else {
       const { app } = inventory.inv
       const collectionName = toCollectionName(`${app}-${stage}`)
