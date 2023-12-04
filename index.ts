@@ -6,8 +6,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { exists } from './paths'
+import { join } from 'path'
+import { pathToFileURL } from 'url'
 import { launch } from './run.js'
 import { populate } from './data.js'
+import { search as getSearchClient } from '@nasa-gcn/architect-functions-search'
 import {
   cloudformationResources as serverlessCloudformationResources,
   services as serverlessServices,
@@ -38,6 +42,25 @@ function getConfig(arc: {
   else return {}
 }
 
+const searchApiFile = 'postdeploy-search.js'
+
+async function executeSearchRequests(cwd: string) {
+  //Load api call file and run all api calls to cluster
+  const apiPath = join(cwd, searchApiFile)
+  if (await exists(apiPath)) {
+    console.log(`Found ${searchApiFile} file, running API calls...`)
+    let result = (await import(pathToFileURL(apiPath).toString())).default
+    const client = await getSearchClient()
+
+    // result should be a function that returns a promise
+    if (typeof result === 'function') {
+      result = result(client)
+    }
+
+    await result
+  }
+}
+
 export const deploy = {
   // @ts-expect-error: The Architect plugins API has no type definitions.
   start({ cloudformation, inventory, arc, stage }) {
@@ -63,6 +86,10 @@ export const deploy = {
       return serverlessServices
     }
   },
+  // @ts-expect-error: The Architect plugins API has no type definitions.
+  async end({ inventory }) {
+    executeSearchRequests(inventory.inv._project.cwd)
+  },
 }
 
 let local: Awaited<ReturnType<typeof launch>>
@@ -85,8 +112,10 @@ export const sandbox = {
   }) {
     const engine = getEngine(getConfig(arc).sandboxEngine)
     local = await launch({ engine })
+    await executeSearchRequests(cwd)
     await populate(cwd, { node: local.url })
   },
+
   async end() {
     await local.stop()
   },

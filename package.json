@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@opensearch-project/opensearch": "^2.2.0",
+    "@nasa-gcn/architect-functions-search": "^1.0.0",
     "dockerode": "^4.0.0",
     "env-paths": "^3.0.0",
     "lodash": "^4.17.21",
