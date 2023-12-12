@@ -99,7 +99,6 @@ export default async function (client) {
       },
     },
   })
-  }
 }
 ```
 
