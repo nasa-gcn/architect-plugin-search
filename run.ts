@@ -128,7 +128,7 @@ export async function launch({
     : launchDocker(props))
 
   try {
-    Promise.race([
+    await Promise.race([
       waitPort({ port, protocol: 'http' }),
       neverResolve(waitUntilStopped()),
     ])
