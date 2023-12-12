@@ -90,7 +90,6 @@ Here's an sample postdeploy-search.js file for making requests to OpenSearch:
 
 ```ts
 export default async function (client) {
-
   await client.transport.request({
     method: 'PUT',
     path: '/_cluster/settings',
