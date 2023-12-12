@@ -48,7 +48,7 @@ async function executeSearchRequests(cwd: string) {
   //Load api call file and run all api calls to cluster
   const apiPath = join(cwd, searchApiFile)
   if (await exists(apiPath)) {
-    console.log(`Found ${searchApiFile} file, running API calls...`)
+    console.log(`Found ${searchApiFile} file, running it...`)
     let result = (await import(pathToFileURL(apiPath).toString())).default
     const client = await getSearchClient()
 
