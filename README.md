@@ -82,6 +82,26 @@ const client = await search()
 
 Now `client` is an instance of the [OpenSearch JavaScript client](https://opensearch.org/docs/latest/clients/javascript/index/), and you can call any client method on it — for example, [`client.index.create()`](https://opensearch.org/docs/latest/clients/javascript/index/#creating-an-index), [`client.index()`](https://opensearch.org/docs/latest/clients/javascript/index/#indexing-a-document), or [`client.search()`](https://opensearch.org/docs/latest/clients/javascript/index/#searching-for-documents).
 
+## Making post-deployment requests to OpenSearch or ElasticSearch from your application
+
+If you would like to make post-deployment REST API calls to your OpenSearch or ElasticSearch instance, you may optionally add a postdeploy-search.js file in the root directory of your Architect project. This file should by default export a function that takes a configured OpenSearch client instance as its only argument. The function will be called post-deployment in production mode and at the start of sandbox mode.
+
+Here's an sample postdeploy-search.js file for making requests to OpenSearch:
+
+```ts
+export default async function (client) {
+  await client.transport.request({
+    method: 'PUT',
+    path: '/_cluster/settings',
+    body: {
+      persistent: {
+        cluster.max_shards_per_node: '500',
+      },
+    },
+  })
+}
+```
+
 ## Advanced usage from your application
 
 If you would like to manually connect to OpenSearch from your application, then you will need to sign your requests using [AWS SIG4](https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html); the OpenSearch client library provides the [`AwsSigv4Signer`](https://opensearch.org/docs/latest/clients/javascript/index/#authenticating-with-amazon-opensearch-service--aws-sigv4) helper to automate this.
