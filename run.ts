@@ -30,6 +30,29 @@ type SearchEngineLauncherFunction<T = object> = (
   waitUntilStopped: () => Promise<void>
 }>
 
+async function launchListener({
+  parentPID,
+  containerId,
+}: {
+  parentPID: number
+  containerId: string
+}) {
+  const subprocess = await spawn(
+    'node',
+    [
+      './node_modules/@nasa-gcn/architect-plugin-search/heartbeat.js',
+      parentPID.toString(),
+      containerId,
+    ],
+    {
+      detached: true,
+      stdio: 'ignore',
+    }
+  )
+
+  subprocess.unref()
+}
+
 const launchBinary: SearchEngineLauncherFunction<{ bin: string }> = async ({
   bin,
   dataDir,
@@ -86,6 +109,7 @@ const launchDocker: SearchEngineLauncherFunction = async ({
   const stream = await container.attach({ stream: true, stderr: true })
   stream.pipe(process.stderr)
   await container.start()
+  await launchListener({ parentPID: process.ppid, containerId: container.id })
 
   return {
     async kill() {
