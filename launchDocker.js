@@ -2,11 +2,15 @@ import Dockerode from "dockerode";
 
 const dataDir = process.argv[2]
 const logsDir = process.argv[3]
+const engine = process.argv[4]
 const port = process.argv[5]
 const options = process.argv[6]
 
 async function launchDocker(){
-  const Image = "docker.elastic.co/elasticsearch/elasticsearch:8.13.3";
+  const Image =
+    engine === 'elasticsearch'
+      ? 'elastic/elasticsearch:8.6.2'
+      : 'opensearchproject/opensearch:2.11.0'
   console.log("Launching Docker container", Image);
   const docker = new Dockerode();
   const container = await docker.createContainer({
