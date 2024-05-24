@@ -16,6 +16,7 @@ import { spawn, untilTerminated } from './processes.js'
 import type { SandboxEngine } from './engines.js'
 import Dockerode from 'dockerode'
 import { UnexpectedResolveError, neverResolve } from './promises.js'
+import { ForkOptions, fork } from 'child_process'
 
 type SearchEngineLauncherFunction<T = object> = (
   props: T & {
@@ -63,37 +64,20 @@ const launchDocker: SearchEngineLauncherFunction = async ({
   port,
   options,
 }) => {
-  const Image =
-    engine === 'elasticsearch'
-      ? 'elastic/elasticsearch:8.6.2'
-      : 'opensearchproject/opensearch:2.11.0'
-  console.log('Launching Docker container', Image)
-  const docker = new Dockerode()
-  const container = await docker.createContainer({
-    Env: [...options, 'path.data=/var/lib/search', 'path.logs=/var/log/search'],
-    HostConfig: {
-      AutoRemove: true,
-      Mounts: [
-        { Source: dataDir, Target: '/var/lib/search', Type: 'bind' },
-        { Source: logsDir, Target: '/var/log/search', Type: 'bind' },
-      ],
-      PortBindings: {
-        [`${port}/tcp`]: [{ HostIP: '127.0.0.1', HostPort: `${port}` }],
-      },
-    },
-    Image,
-  })
-  const stream = await container.attach({ stream: true, stderr: true })
-  stream.pipe(process.stderr)
-  await container.start()
+  const args = {
+    execArgv: [dataDir, logsDir, engine, port, options],
+  } as ForkOptions
+  const subprocess = fork(
+    './node_modules/@nasa-gcn/architect-plugin-search/launchDocker.js',
+    args
+  )
 
   return {
     async kill() {
-      console.log('Killing Docker container')
-      await container.kill()
+      subprocess.send({ action: 'kill' })
     },
     async waitUntilStopped() {
-      await container.wait()
+      subprocess.send({ action: 'wait' })
     },
   }
 }
