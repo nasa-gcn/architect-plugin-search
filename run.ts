@@ -14,7 +14,6 @@ import { mkdirP, temp } from './paths.js'
 import rimraf from 'rimraf'
 import { spawn, untilTerminated } from './processes.js'
 import type { SandboxEngine } from './engines.js'
-import Dockerode from 'dockerode'
 import { UnexpectedResolveError, neverResolve } from './promises.js'
 import { ForkOptions, fork } from 'child_process'
 
