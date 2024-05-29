@@ -66,6 +66,7 @@ export function cloudformationResources({
         DomainEndpointOptions: { EnforceHTTPS: true },
         EBSOptions: { EBSEnabled: true, VolumeSize },
         EncryptionAtRestOptions: { Enabled: true },
+        IPAddressType: 'dualstack',
         NodeToNodeEncryptionOptions: { Enabled: true },
       },
     },
