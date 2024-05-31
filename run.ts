@@ -14,8 +14,8 @@ import { mkdirP, temp } from './paths.js'
 import rimraf from 'rimraf'
 import { spawn, untilTerminated } from './processes.js'
 import type { SandboxEngine } from './engines.js'
-import Dockerode from 'dockerode'
 import { UnexpectedResolveError, neverResolve } from './promises.js'
+import { ForkOptions, fork } from 'child_process'
 
 type SearchEngineLauncherFunction<T = object> = (
   props: T & {
@@ -63,37 +63,34 @@ const launchDocker: SearchEngineLauncherFunction = async ({
   port,
   options,
 }) => {
-  const Image =
-    engine === 'elasticsearch'
-      ? 'elastic/elasticsearch:8.6.2'
-      : 'opensearchproject/opensearch:2.11.0'
-  console.log('Launching Docker container', Image)
-  const docker = new Dockerode()
-  const container = await docker.createContainer({
-    Env: [...options, 'path.data=/var/lib/search', 'path.logs=/var/log/search'],
-    HostConfig: {
-      AutoRemove: true,
-      Mounts: [
-        { Source: dataDir, Target: '/var/lib/search', Type: 'bind' },
-        { Source: logsDir, Target: '/var/log/search', Type: 'bind' },
-      ],
-      PortBindings: {
-        [`${port}/tcp`]: [{ HostIP: '127.0.0.1', HostPort: `${port}` }],
-      },
-    },
-    Image,
+  const subprocess = fork(
+    './node_modules/@nasa-gcn/architect-plugin-search/launchSearch.js',
+    [dataDir, logsDir, engine, port, options] as ForkOptions
+  )
+
+  subprocess.stdout?.on('data', (data) => {
+    console.log(`subprocess stdout: ${data}`)
   })
-  const stream = await container.attach({ stream: true, stderr: true })
-  stream.pipe(process.stderr)
-  await container.start()
+
+  subprocess.stderr?.on('data', (data) => {
+    console.error(`subprocess stderr: ${data}`)
+  })
+
+  const waitUntilStopped = new Promise<void>((resolve) => {
+    subprocess.on('message', (message) => {
+      if (message === 'containerStopped') {
+        resolve()
+      }
+    })
+  })
 
   return {
     async kill() {
       console.log('Killing Docker container')
-      await container.kill()
+      subprocess.send({ action: 'kill' })
     },
     async waitUntilStopped() {
-      await container.wait()
+      await waitUntilStopped
     },
   }
 }
