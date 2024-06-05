@@ -18,7 +18,7 @@ type Message = {
   action: string
 }
 
-let dockerConatiner: Dockerode.Container
+let dockerContainer: Dockerode.Container
 
 async function launchDocker() {
   const Image =
@@ -45,7 +45,7 @@ async function launchDocker() {
   const stream = await container.attach({ stream: true, stderr: true })
   stream.pipe(process.stderr)
   await container.start()
-  dockerConatiner = container
+  dockerContainer = container
 }
 
 function stopping() {
@@ -54,7 +54,7 @@ function stopping() {
 }
 
 async function waiting() {
-  await dockerConatiner.wait()
+  await dockerContainer.wait()
   stopping()
 }
 
@@ -64,16 +64,17 @@ process.once('message', async (message: Message) => {
   if (message.action === 'wait') {
     waiting()
   } else {
-    await dockerConatiner.kill()
+    await dockerContainer.kill()
+    process.exit(0)
   }
 })
 
 process.on('SIGTERM', async () => {
-  await dockerConatiner.kill()
+  await dockerContainer.kill()
   process.exit(0)
 })
 
 process.on('SIGINT', async () => {
-  await dockerConatiner.kill()
+  await dockerContainer.kill()
   process.exit(0)
 })
