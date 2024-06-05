@@ -48,8 +48,9 @@ async function launchDocker() {
   dockerConatiner = container
 }
 
-async function stopping() {
+function stopping() {
   if (process.send) process.send('containerStopped')
+  process.exit(0)
 }
 
 async function waiting() {
