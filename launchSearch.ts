@@ -8,11 +8,8 @@
 
 import Dockerode from 'dockerode'
 
-const dataDir = process.argv[2]
-const logsDir = process.argv[3]
-const engine = process.argv[4]
-const port = process.argv[5]
-const options = process.argv[6].split(',')
+const [, , dataDir, logsDir, engine, port, optionsStr] = process.argv
+const options = optionsStr.split(',')
 
 type Message = {
   action: string
@@ -45,7 +42,7 @@ async function launchDocker() {
   const stream = await container.attach({ stream: true, stderr: true })
   stream.pipe(process.stderr)
   await container.start()
-  dockerContainer = container
+  return container
 }
 
 function stopping() {
@@ -58,7 +55,12 @@ async function waiting() {
   stopping()
 }
 
-launchDocker()
+async function launch() {
+  dockerContainer = await launchDocker()
+  waiting()
+}
+
+launch()
 
 process.once('message', async (message: Message) => {
   if (message.action === 'wait') {

@@ -75,7 +75,6 @@ const launchDocker: SearchEngineLauncherFunction = async ({
   subprocess.stderr?.on('data', (data) => {
     console.error(`subprocess stderr: ${data}`)
   })
-  subprocess.send({ action: 'wait' })
   const waitUntilStopped = new Promise<void>((resolve) => {
     subprocess.on('message', (message) => {
       if (message === 'containerStopped') {
