@@ -19,8 +19,7 @@
   ],
   "scripts": {
     "prepare:husky": "husky install",
-    "prepare:esbuild": "esbuild index.ts --bundle --packages=external --outfile=index.js --platform=node --format=esm --tree-shaking=true",
-    "prepare:docker": "esbuild launchSearch.ts --bundle --packages=external --outfile=launchSearch.js --platform=node --format=esm --tree-shaking=true",
+    "prepare:esbuild": "node esbuild.js",
     "prepare": "run-p prepare:*"
   },
   "engines": {
