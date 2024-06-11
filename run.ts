@@ -68,18 +68,10 @@ const launchDocker: SearchEngineLauncherFunction = async ({
     [dataDir, logsDir, engine, port, options] as ForkOptions
   )
 
-  subprocess.stdout?.on('data', (data) => {
-    console.log(`subprocess stdout: ${data}`)
-  })
-
-  subprocess.stderr?.on('data', (data) => {
-    console.error(`subprocess stderr: ${data}`)
-  })
   const waitUntilStopped = new Promise<void>((resolve) => {
-    subprocess.on('message', (message) => {
-      if (message === 'containerStopped') {
-        resolve()
-      }
+    subprocess.on('exit', () => {
+      console.log('Docker container exited')
+      resolve()
     })
   })
 
