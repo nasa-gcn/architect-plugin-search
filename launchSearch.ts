@@ -8,8 +8,8 @@
 
 import Dockerode from 'dockerode'
 
-const [, , dataDir, logsDir, engine, port, optionsStr] = process.argv
-const options = optionsStr.split(',')
+const [, , argv] = process.argv
+const { dataDir, logsDir, engine, port, options } = JSON.parse(argv)
 
 let dockerContainer: Dockerode.Container
 

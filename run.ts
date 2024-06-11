@@ -63,9 +63,16 @@ const launchDocker: SearchEngineLauncherFunction = async ({
   port,
   options,
 }) => {
+  const argv = {
+    dataDir,
+    logsDir,
+    engine,
+    port,
+    options,
+  }
   const subprocess = fork(
     './node_modules/@nasa-gcn/architect-plugin-search/launchSearch.js',
-    [dataDir, logsDir, engine, port, options] as ForkOptions
+    [JSON.stringify(argv)]
   )
 
   const waitUntilStopped = new Promise<void>((resolve) => {
