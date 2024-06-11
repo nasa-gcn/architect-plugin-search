@@ -8,6 +8,10 @@
 
 import Dockerode from 'dockerode'
 
+type Message = {
+  action: string
+}
+
 const [, , argv] = process.argv
 const { dataDir, logsDir, engine, port, options } = JSON.parse(argv)
 
@@ -50,6 +54,13 @@ async function launch() {
   dockerContainer = await launchDocker()
   waiting()
 }
+
+process.once('message', async (message: Message) => {
+  if (message.action === 'kill') {
+    await dockerContainer.kill()
+    process.exit(0)
+  }
+})
 
 launch()
 
