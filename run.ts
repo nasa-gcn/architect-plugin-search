@@ -15,7 +15,7 @@ import rimraf from 'rimraf'
 import { spawn, untilTerminated } from './processes.js'
 import type { SandboxEngine } from './engines.js'
 import { UnexpectedResolveError, neverResolve } from './promises.js'
-import { ForkOptions, fork } from 'child_process'
+import { fork } from 'child_process'
 
 type SearchEngineLauncherFunction<T = object> = (
   props: T & {
