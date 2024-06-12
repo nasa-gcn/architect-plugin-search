@@ -8,10 +8,6 @@
 
 import Dockerode from 'dockerode'
 
-type Message = {
-  action: string
-}
-
 const [, , argv] = process.argv
 const { dataDir, logsDir, engine, port, options } = JSON.parse(argv)
 
