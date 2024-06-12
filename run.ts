@@ -16,6 +16,8 @@ import { spawn, untilTerminated } from './processes.js'
 import type { SandboxEngine } from './engines.js'
 import { UnexpectedResolveError, neverResolve } from './promises.js'
 import { fork } from 'child_process'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 type SearchEngineLauncherFunction<T = object> = (
   props: T & {
@@ -56,6 +58,13 @@ const launchBinary: SearchEngineLauncherFunction<{ bin: string }> = async ({
   }
 }
 
+function directoryName() {
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = path.dirname(__filename)
+  return __dirname.includes('node_modules')
+    ? __dirname
+    : './node_modules/@nasa-gcn/architect-plugin-search'
+}
 const launchDocker: SearchEngineLauncherFunction = async ({
   dataDir,
   logsDir,
@@ -70,17 +79,9 @@ const launchDocker: SearchEngineLauncherFunction = async ({
     port,
     options,
   }
-  const subprocess = fork(
-    './node_modules/@nasa-gcn/architect-plugin-search/launchSearch.js',
-    [JSON.stringify(argv)]
-  )
-
-  const waitUntilStopped = new Promise<void>((resolve) => {
-    subprocess.on('exit', () => {
-      console.log('Docker container exited')
-      resolve()
-    })
-  })
+  const subprocess = fork(`${directoryName()}/launchSearch.js`, [
+    JSON.stringify(argv),
+  ])
 
   return {
     async kill() {
@@ -88,7 +89,12 @@ const launchDocker: SearchEngineLauncherFunction = async ({
       subprocess.send({ action: 'kill' })
     },
     async waitUntilStopped() {
-      await waitUntilStopped
+      return new Promise<void>((resolve) => {
+        subprocess.on('exit', () => {
+          console.log('Docker container exited')
+          resolve()
+        })
+      })
     },
   }
 }
