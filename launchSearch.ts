@@ -15,8 +15,6 @@ type Message = {
 const [, , argv] = process.argv
 const { dataDir, logsDir, engine, port, options } = JSON.parse(argv)
 
-let dockerContainer: Dockerode.Container
-
 async function launchDocker() {
   const Image =
     engine === 'elasticsearch'
@@ -45,29 +43,14 @@ async function launchDocker() {
   return container
 }
 
-async function waiting() {
-  await dockerContainer.wait()
-  process.exit(0)
-}
+const dockerContainer = await launchDocker()
 
-async function launch() {
-  dockerContainer = await launchDocker()
-  waiting()
-}
-
-process.once('message', async (message: Message) => {
-  if (message.action === 'kill') {
-    await dockerContainer.kill()
-    process.exit(0)
-  }
-})
-
-launch()
-
-const signals = ['SIGTERM', 'SIGINT']
+const signals = ['message', 'SIGTERM', 'SIGINT']
 signals.forEach((signal) => {
   process.on(signal, async () => {
     await dockerContainer.kill()
     process.exit(0)
   })
 })
+
+await dockerContainer.wait()
