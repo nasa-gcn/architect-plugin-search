@@ -58,13 +58,6 @@ const launchBinary: SearchEngineLauncherFunction<{ bin: string }> = async ({
   }
 }
 
-function directoryName() {
-  const __filename = fileURLToPath(import.meta.url)
-  const __dirname = path.dirname(__filename)
-  return __dirname.includes('node_modules')
-    ? __dirname
-    : './node_modules/@nasa-gcn/architect-plugin-search'
-}
 const launchDocker: SearchEngineLauncherFunction = async ({
   dataDir,
   logsDir,
@@ -79,7 +72,9 @@ const launchDocker: SearchEngineLauncherFunction = async ({
     port,
     options,
   }
-  const subprocess = fork(`${directoryName()}/launchSearch.js`, [
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = path.dirname(__filename)
+  const subprocess = fork(`${__dirname}/launchSearch.js`, [
     JSON.stringify(argv),
   ])
 
