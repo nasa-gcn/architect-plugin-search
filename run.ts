@@ -71,6 +71,9 @@ const launchDocker: SearchEngineLauncherFunction = async ({
     port,
     options,
   }
+  // FIXME: fork accepts either a string or URL as the first argument. @types/node has defined the modulePath type as string only.
+  // new URL(import.meta.url) may be used in place of __filename once this has been updated.
+  // see: https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/69812
   const __filename = fileURLToPath(import.meta.url)
   const subprocess = fork(__filename, [
     'launch-docker-subprocess',
