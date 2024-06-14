@@ -14,12 +14,11 @@
   ],
   "type": "module",
   "files": [
-    "index.js",
-    "launchSearch.js"
+    "index.js"
   ],
   "scripts": {
     "prepare:husky": "husky install",
-    "prepare:esbuild": "esbuild index.ts --bundle --packages=external --outdir=. --platform=node --format=esm --tree-shaking=true",
+    "prepare:esbuild": "esbuild index.ts --bundle --packages=external --outfile=index.js --platform=node --format=esm --tree-shaking=true",
     "prepare": "run-p prepare:*"
   },
   "engines": {
