@@ -16,7 +16,6 @@ import { spawn, untilTerminated } from './processes.js'
 import type { SandboxEngine } from './engines.js'
 import { UnexpectedResolveError, neverResolve } from './promises.js'
 import { fork } from 'child_process'
-import path from 'path'
 import { fileURLToPath } from 'url'
 
 type SearchEngineLauncherFunction<T = object> = (
@@ -73,8 +72,8 @@ const launchDocker: SearchEngineLauncherFunction = async ({
     options,
   }
   const __filename = fileURLToPath(import.meta.url)
-  const __dirname = path.dirname(__filename)
-  const subprocess = fork(`${__dirname}/launchSearch.js`, [
+  const subprocess = fork(__filename, [
+    'launch-docker-subprocess',
     JSON.stringify(argv),
   ])
 

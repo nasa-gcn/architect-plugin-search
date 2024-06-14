@@ -8,10 +8,24 @@
 
 import Dockerode from 'dockerode'
 
-const [, , argv] = process.argv
-const { dataDir, logsDir, engine, port, options } = JSON.parse(argv)
+const [, , command, jsonifiedArgs] = process.argv
 
-async function launchDocker() {
+if (command === 'launch-docker-subprocess') {
+  const dockerContainer = await launchDockerSearch()
+
+  const signals = ['message', 'SIGTERM', 'SIGINT']
+  signals.forEach((signal) => {
+    process.on(signal, async () => {
+      await dockerContainer.kill()
+      process.exit(0)
+    })
+  })
+
+  await dockerContainer.wait()
+}
+
+export async function launchDockerSearch() {
+  const { dataDir, logsDir, engine, port, options } = JSON.parse(jsonifiedArgs)
   const Image =
     engine === 'elasticsearch'
       ? 'elastic/elasticsearch:8.6.2'
@@ -38,15 +52,3 @@ async function launchDocker() {
   await container.start()
   return container
 }
-
-const dockerContainer = await launchDocker()
-
-const signals = ['message', 'SIGTERM', 'SIGINT']
-signals.forEach((signal) => {
-  process.on(signal, async () => {
-    await dockerContainer.kill()
-    process.exit(0)
-  })
-})
-
-await dockerContainer.wait()
