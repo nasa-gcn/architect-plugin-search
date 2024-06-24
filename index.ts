@@ -12,6 +12,7 @@ import { pathToFileURL } from 'url'
 import { launch } from './run.js'
 import { populate } from './data.js'
 import { search as getSearchClient } from '@nasa-gcn/architect-functions-search'
+import './launchSearch'
 import {
   cloudformationResources as serverlessCloudformationResources,
   services as serverlessServices,

@@ -14,8 +14,9 @@ import { mkdirP, temp } from './paths.js'
 import rimraf from 'rimraf'
 import { spawn, untilTerminated } from './processes.js'
 import type { SandboxEngine } from './engines.js'
-import Dockerode from 'dockerode'
 import { UnexpectedResolveError, neverResolve } from './promises.js'
+import { fork } from 'child_process'
+import { fileURLToPath } from 'url'
 
 type SearchEngineLauncherFunction<T = object> = (
   props: T & {
@@ -63,37 +64,34 @@ const launchDocker: SearchEngineLauncherFunction = async ({
   port,
   options,
 }) => {
-  const Image =
-    engine === 'elasticsearch'
-      ? 'elastic/elasticsearch:8.6.2'
-      : 'opensearchproject/opensearch:2.11.0'
-  console.log('Launching Docker container', Image)
-  const docker = new Dockerode()
-  const container = await docker.createContainer({
-    Env: [...options, 'path.data=/var/lib/search', 'path.logs=/var/log/search'],
-    HostConfig: {
-      AutoRemove: true,
-      Mounts: [
-        { Source: dataDir, Target: '/var/lib/search', Type: 'bind' },
-        { Source: logsDir, Target: '/var/log/search', Type: 'bind' },
-      ],
-      PortBindings: {
-        [`${port}/tcp`]: [{ HostIP: '127.0.0.1', HostPort: `${port}` }],
-      },
-    },
-    Image,
-  })
-  const stream = await container.attach({ stream: true, stderr: true })
-  stream.pipe(process.stderr)
-  await container.start()
+  const argv = {
+    dataDir,
+    logsDir,
+    engine,
+    port,
+    options,
+  }
+  // FIXME: fork accepts either a string or URL as the first argument. @types/node has defined the modulePath type as string only.
+  // new URL(import.meta.url) may be used in place of __filename once this has been updated.
+  // see: https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/69812
+  const __filename = fileURLToPath(import.meta.url)
+  const subprocess = fork(__filename, [
+    'launch-docker-subprocess',
+    JSON.stringify(argv),
+  ])
 
   return {
     async kill() {
       console.log('Killing Docker container')
-      await container.kill()
+      subprocess.send({ action: 'kill' })
     },
     async waitUntilStopped() {
-      await container.wait()
+      return new Promise((resolve) => {
+        subprocess.on('exit', () => {
+          console.log('Docker container exited')
+          resolve()
+        })
+      })
     },
   }
 }
