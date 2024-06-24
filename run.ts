@@ -86,7 +86,7 @@ const launchDocker: SearchEngineLauncherFunction = async ({
       subprocess.send({ action: 'kill' })
     },
     async waitUntilStopped() {
-      return new Promise<void>((resolve) => {
+      return new Promise((resolve) => {
         subprocess.on('exit', () => {
           console.log('Docker container exited')
           resolve()

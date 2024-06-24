@@ -17,14 +17,13 @@ if (command === 'launch-docker-subprocess') {
   signals.forEach((signal) => {
     process.on(signal, async () => {
       await dockerContainer.kill()
-      process.exit(0)
     })
   })
 
   await dockerContainer.wait()
 }
 
-export async function launchDockerSearch() {
+async function launchDockerSearch() {
   const { dataDir, logsDir, engine, port, options } = JSON.parse(jsonifiedArgs)
   const Image =
     engine === 'elasticsearch'
