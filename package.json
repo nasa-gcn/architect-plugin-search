@@ -85,9 +85,5 @@
     "parserOptions": {
       "sourceType": "module"
     }
-  },
-  "lint-staged": {
-    "*.(json|md|ts)": "prettier --write",
-    "*.ts": "eslint"
   }
 }
