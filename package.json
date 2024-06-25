@@ -1,5 +1,6 @@
 {
   "name": "@nasa-gcn/architect-plugin-search",
+  "description": "Architect plugin for OpenSearch / ElasticSearch",
   "version": "1.2.0",
   "repository": {
     "type": "git",
