@@ -1,4 +1,4 @@
 export default {
-  '*.(json|md|ts)': 'prettier --write',
-  '*.ts': ['eslint', () => 'tsc'],
+  '*.(json|md|ts|mjs)': ['prettier --write', 'eslint --max-warnings 0 .'],
+  '*.ts': () => 'tsc',
 }
