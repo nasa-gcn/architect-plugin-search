@@ -12,13 +12,12 @@ import { install } from './install.js'
 import { mkdtemp } from 'fs/promises'
 import { mkdirP, temp } from './paths.js'
 import rimraf from 'rimraf'
-import { spawn, untilTerminated } from './processes.js'
 import type { SandboxEngine } from './engines.js'
 import { UnexpectedResolveError, neverResolve } from './promises.js'
-import { fork } from 'child_process'
-import { fileURLToPath } from 'url'
+import { launchBinary } from './runBinary.js'
+import { launchDocker } from './runDocker.js'
 
-type SearchEngineLauncherFunction<T = object> = (
+export type SearchEngineLauncherFunction<T = object> = (
   props: T & {
     options: string[]
     dataDir: string
@@ -30,71 +29,6 @@ type SearchEngineLauncherFunction<T = object> = (
   kill: () => Promise<void>
   waitUntilStopped: () => Promise<void>
 }>
-
-const launchBinary: SearchEngineLauncherFunction<{ bin: string }> = async ({
-  bin,
-  dataDir,
-  logsDir,
-  options,
-}) => {
-  const args = [...options, `path.data=${dataDir}`, `path.logs=${logsDir}`].map(
-    (opt) => `-E${opt}`
-  )
-
-  console.log('Spawning', bin, ...args)
-  const child = await spawn(bin, args, {
-    stdio: ['ignore', 'ignore', 'inherit'],
-  })
-
-  return {
-    async kill() {
-      console.log('Killing child process')
-      child.kill()
-    },
-    async waitUntilStopped() {
-      await untilTerminated(child)
-    },
-  }
-}
-
-const launchDocker: SearchEngineLauncherFunction = async ({
-  dataDir,
-  logsDir,
-  engine,
-  port,
-  options,
-}) => {
-  const argv = {
-    dataDir,
-    logsDir,
-    engine,
-    port,
-    options,
-  }
-  // FIXME: fork accepts either a string or URL as the first argument. @types/node has defined the modulePath type as string only.
-  // new URL(import.meta.url) may be used in place of __filename once this has been updated.
-  // see: https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/69812
-  const __filename = fileURLToPath(import.meta.url)
-  const subprocess = fork(__filename, [
-    'launch-docker-subprocess',
-    JSON.stringify(argv),
-  ])
-
-  return {
-    async kill() {
-      console.log('Killing Docker container')
-      subprocess.send({ action: 'kill' })
-    },
-    async waitUntilStopped() {
-      return new Promise((resolve) => {
-        subprocess.on('exit', () => {
-          console.log('Docker container exited')
-          resolve()
-        })
-      })
-    },
-  }
-}
 
 export async function launch({
   port,

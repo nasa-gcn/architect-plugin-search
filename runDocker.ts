@@ -7,23 +7,12 @@
  */
 
 import Dockerode from 'dockerode'
+import { fork } from 'child_process'
+import { type SearchEngineLauncherFunction } from './run.js'
 
 const [, , command, jsonifiedArgs] = process.argv
 
 if (command === 'launch-docker-subprocess') {
-  const dockerContainer = await launchDockerSearch()
-
-  const signals = ['message', 'SIGTERM', 'SIGINT']
-  signals.forEach((signal) => {
-    process.on(signal, async () => {
-      await dockerContainer.kill()
-    })
-  })
-
-  await dockerContainer.wait()
-}
-
-async function launchDockerSearch() {
   const { dataDir, logsDir, engine, port, options } = JSON.parse(jsonifiedArgs)
   const Image =
     engine === 'elasticsearch'
@@ -49,5 +38,48 @@ async function launchDockerSearch() {
   const stream = await container.attach({ stream: true, stderr: true })
   stream.pipe(process.stderr)
   await container.start()
-  return container
+
+  const signals = ['message', 'SIGTERM', 'SIGINT']
+  signals.forEach((signal) => {
+    process.on(signal, async () => {
+      await container.kill()
+    })
+  })
+
+  await container.wait()
+}
+
+export const launchDocker: SearchEngineLauncherFunction = async ({
+  dataDir,
+  logsDir,
+  engine,
+  port,
+  options,
+}) => {
+  const argv = {
+    dataDir,
+    logsDir,
+    engine,
+    port,
+    options,
+  }
+  const subprocess = fork(new URL(import.meta.url), [
+    'launch-docker-subprocess',
+    JSON.stringify(argv),
+  ])
+
+  return {
+    async kill() {
+      console.log('Killing Docker container')
+      subprocess.send({ action: 'kill' })
+    },
+    async waitUntilStopped() {
+      return new Promise((resolve) => {
+        subprocess.on('exit', () => {
+          console.log('Docker container exited')
+          resolve()
+        })
+      })
+    },
+  }
 }
