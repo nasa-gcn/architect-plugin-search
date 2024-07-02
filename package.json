@@ -26,8 +26,8 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@opensearch-project/opensearch": "^2.2.0",
     "@nasa-gcn/architect-functions-search": "^1.0.0",
+    "@opensearch-project/opensearch": "^2.2.0",
     "dockerode": "^4.0.0",
     "env-paths": "^3.0.0",
     "lodash": "^4.17.21",
@@ -50,6 +50,7 @@
     "esbuild": "^0.17.8",
     "eslint": "^8.34.0",
     "eslint-config-prettier": "^8.6.0",
+    "execa": "^9.3.0",
     "husky": "^8.0.3",
     "lint-staged": "^13.1.2",
     "npm-run-all": "^4.1.5",
