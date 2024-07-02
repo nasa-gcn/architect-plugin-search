@@ -2,8 +2,7 @@ import assert from 'node:assert'
 import { dirname, join } from 'node:path'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { fileURLToPath } from 'node:url'
-import { spawn, untilTerminated } from '../processes'
-import { ChildProcess } from 'node:child_process'
+import { ExecaError, execa } from 'execa'
 
 async function sleep(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout))
@@ -33,25 +32,29 @@ const engines = ['elasticsearch', 'opensearch']
 engines.forEach((engine) =>
   signals.forEach((signal) => {
     describe(`${engine} stops when sent signal ${signal}`, () => {
-      let process: ChildProcess
+      let process: ReturnType<typeof execa> | undefined
 
       beforeEach(async () => {
         // FIXME: replace with import.meta.resolve once it is stable in Node.js
         const cwd = join(dirname(fileURLToPath(import.meta.url)), engine)
 
-        process = await spawn('npx', ['arc', 'sandbox'], {
+        process = execa('arc', ['sandbox'], {
           cwd,
+          preferLocal: true,
+          forceKillAfterDelay: false,
           stdio: 'inherit',
         })
       })
 
       afterEach(async () => {
         if (process) {
-          const processIsDead = untilTerminated(process)
-
           assert.ok(process.kill(signal))
           // Make sure arc sandbox is dead
-          await processIsDead
+          try {
+            await process
+          } catch (e) {
+            if (!(e instanceof ExecaError)) throw e
+          }
           // Give subprocesses some time to die
           await sleep(1000)
 
