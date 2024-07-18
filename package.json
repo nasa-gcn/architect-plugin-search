@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@nasa-gcn/eslint-config-gitignore": "^0.0.2",
-    "@tsconfig/node14": "^1.0.3",
+    "@tsconfig/node14": "^14.1.2",
     "@types/dockerode": "^3.3.23",
     "@types/lodash": "^4.14.202",
     "@types/make-fetch-happen": "^10.0.1",
