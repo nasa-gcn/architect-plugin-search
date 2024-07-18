@@ -6,12 +6,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { readFile } from 'fs/promises'
-import { join } from 'path'
-import { pathToFileURL } from 'url'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { Client } from '@opensearch-project/opensearch'
 import type { ClientOptions } from '@opensearch-project/opensearch'
-import { exists } from './paths'
+import { exists } from './paths.js'
 import chunk from 'lodash/chunk.js'
 
 const jsonFilename = 'sandbox-search.json'

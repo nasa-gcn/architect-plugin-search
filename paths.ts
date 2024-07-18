@@ -6,10 +6,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { access, mkdir } from 'fs/promises'
+import { access, mkdir } from 'node:fs/promises'
 import envPaths from 'env-paths'
 import { name } from './package.json'
-import type { PathLike } from 'fs'
+import type { PathLike } from 'node:fs'
 
 export const { cache, temp } = envPaths(name)
 

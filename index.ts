@@ -6,9 +6,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { exists } from './paths'
-import { join } from 'path'
-import { pathToFileURL } from 'url'
+import { exists } from './paths.js'
+import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { launch } from './run.js'
 import { populate } from './data.js'
 import { search as getSearchClient } from '@nasa-gcn/architect-functions-search'

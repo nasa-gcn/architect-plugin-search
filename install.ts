@@ -6,9 +6,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import os from 'os'
-import { pipeline } from 'stream/promises'
-import { join, posix } from 'path'
+import os from 'node:os'
+import { pipeline } from 'node:stream/promises'
+import { join, posix } from 'node:path'
 import fetch from 'make-fetch-happen'
 import { Extract as unzip } from 'unzip-stream'
 import { x as untar } from 'tar'
