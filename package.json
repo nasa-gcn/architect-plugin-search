@@ -20,7 +20,8 @@
   "scripts": {
     "prepare:husky": "husky",
     "prepare:esbuild": "esbuild index.ts --bundle --packages=external --outfile=index.js --platform=node --format=esm --tree-shaking=true",
-    "prepare": "run-p prepare:*"
+    "prepare": "run-p prepare:*",
+    "test": "node --test"
   },
   "engines": {
     "node": ">=18"
