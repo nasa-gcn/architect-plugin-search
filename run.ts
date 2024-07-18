@@ -6,10 +6,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { join } from 'path'
+import { join } from 'node:path'
 import waitPort from 'wait-port'
 import { install } from './install.js'
-import { mkdtemp } from 'fs/promises'
+import { mkdtemp } from 'node:fs/promises'
 import { mkdirP, temp } from './paths.js'
 import rimraf from 'rimraf'
 import type { SandboxEngine } from './engines.js'

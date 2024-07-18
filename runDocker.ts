@@ -7,7 +7,7 @@
  */
 
 import Dockerode from 'dockerode'
-import { fork } from 'child_process'
+import { fork } from 'node:child_process'
 import { type SearchEngineLauncherFunction } from './run.js'
 
 const [, , command, jsonifiedArgs] = process.argv

@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { spawn as node_spawn } from 'child_process'
-import type { ChildProcess } from 'child_process'
+import { spawn as node_spawn } from 'node:child_process'
+import type { ChildProcess } from 'node:child_process'
 
 export async function spawn(...args: Parameters<typeof node_spawn>) {
   const child = node_spawn(...args)
