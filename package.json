@@ -34,7 +34,7 @@
     "lodash": "^4.17.21",
     "make-fetch-happen": "^13.0.1",
     "rimraf": "^4.1.2",
-    "tar": "^6.2.1",
+    "tar": "^7.4.1",
     "unzip-stream": "^0.3.1",
     "wait-port": "^1.0.4"
   },
