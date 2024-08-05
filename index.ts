@@ -61,6 +61,19 @@ async function executeSearchRequests(cwd: string) {
   }
 }
 
+function addTransforms(
+  cloudformation: { Transform?: string[] | string },
+  ...transforms: string[]
+) {
+  if (cloudformation.Transform === undefined) {
+    cloudformation.Transform = transforms
+  } else if (typeof cloudformation.Transform === 'string') {
+    cloudformation.Transform = [cloudformation.Transform, ...transforms]
+  } else {
+    cloudformation.Transform.push(...transforms)
+  }
+}
+
 export const deploy = {
   // @ts-expect-error: The Architect plugins API has no type definitions.
   start({ cloudformation, inventory, arc, stage }) {
@@ -74,6 +87,7 @@ export const deploy = {
       resources = serverlessCloudformationResources(collectionName)
     }
     Object.assign(cloudformation.Resources, resources)
+    addTransforms(cloudformation, 'AWS::LanguageExtensions')
     return cloudformation
   },
   // @ts-expect-error: The Architect plugins API has no type definitions.

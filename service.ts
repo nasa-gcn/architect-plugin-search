@@ -36,8 +36,38 @@ export function cloudformationResources({
   }
 
   return {
+    OpenSearchLogGroup: {
+      Type: 'AWS::Logs::LogGroup',
+      Properties: {
+        LogGroupName: {
+          'Fn::Sub':
+            '/aws/OpenSearchService/stacks/${AWS::StackName}/application-logs',
+        },
+      },
+    },
+    OpenSearchLogPolicy: {
+      Type: 'AWS::Logs::ResourcePolicy',
+      Properties: {
+        PolicyName: { 'Fn::Sub': '${AWS::StackName}-OpenSearchLogPolicy' },
+        PolicyDocument: {
+          'Fn::ToJsonString': {
+            Version: '2012-10-17',
+            Statement: [
+              {
+                Sid: '',
+                Effect: 'Allow',
+                Principal: { Service: 'es.amazonaws.com' },
+                Action: ['logs:PutLogEvents', 'logs:CreateLogStream'],
+                Resource: { 'Fn::GetAtt': ['OpenSearchLogGroup', 'Arn'] },
+              },
+            ],
+          },
+        },
+      },
+    },
     OpenSearchServiceDomain: {
       Type: 'AWS::OpenSearchService::Domain',
+      DependsOn: 'OpenSearchLogPolicy',
       Properties: {
         AccessPolicies: {
           Version: '2012-10-17',
@@ -67,6 +97,14 @@ export function cloudformationResources({
         EBSOptions: { EBSEnabled: true, VolumeSize },
         EncryptionAtRestOptions: { Enabled: true },
         IPAddressType: 'dualstack',
+        LogPublishingOptions: {
+          ES_APPLICATION_LOGS: {
+            CloudWatchLogsLogGroupArn: {
+              'Fn::GetAtt': ['OpenSearchLogGroup', 'Arn'],
+            },
+            Enabled: true,
+          },
+        },
         NodeToNodeEncryptionOptions: { Enabled: true },
       },
     },
