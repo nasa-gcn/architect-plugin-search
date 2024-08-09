@@ -36,12 +36,21 @@ export function cloudformationResources({
   }
 
   return {
-    OpenSearchLogGroup: {
+    OpenSearchApplicationLogGroup: {
       Type: 'AWS::Logs::LogGroup',
       Properties: {
         LogGroupName: {
           'Fn::Sub':
             '/aws/OpenSearchService/stacks/${AWS::StackName}/application-logs',
+        },
+      },
+    },
+    OpenSearchAuditLogGroup: {
+      Type: 'AWS::Logs::LogGroup',
+      Properties: {
+        LogGroupName: {
+          'Fn::Sub':
+            '/aws/OpenSearchService/stacks/${AWS::StackName}/audit-logs',
         },
       },
     },
@@ -58,7 +67,10 @@ export function cloudformationResources({
                 Effect: 'Allow',
                 Principal: { Service: 'es.amazonaws.com' },
                 Action: ['logs:PutLogEvents', 'logs:CreateLogStream'],
-                Resource: { 'Fn::GetAtt': ['OpenSearchLogGroup', 'Arn'] },
+                Resource: [
+                  { 'Fn::GetAtt': ['OpenSearchAuditLogGroup', 'Arn'] },
+                  { 'Fn::GetAtt': ['OpenSearchApplicationLogGroup', 'Arn'] },
+                ],
               },
             ],
           },
@@ -98,9 +110,15 @@ export function cloudformationResources({
         EncryptionAtRestOptions: { Enabled: true },
         IPAddressType: 'dualstack',
         LogPublishingOptions: {
+          AUDIT_LOGS: {
+            CloudWatchLogsLogGroupArn: {
+              'Fn::GetAtt': ['OpenSearchAuditLogGroup', 'Arn'],
+            },
+            Enabled: true,
+          },
           ES_APPLICATION_LOGS: {
             CloudWatchLogsLogGroupArn: {
-              'Fn::GetAtt': ['OpenSearchLogGroup', 'Arn'],
+              'Fn::GetAtt': ['OpenSearchApplicationLogGroup', 'Arn'],
             },
             Enabled: true,
           },
