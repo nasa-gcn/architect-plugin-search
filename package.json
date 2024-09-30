@@ -32,7 +32,7 @@
     "dockerode": "^4.0.0",
     "env-paths": "^3.0.0",
     "lodash": "^4.17.21",
-    "make-fetch-happen": "^13.0.1",
+    "make-fetch-happen": "^14.0.0",
     "rimraf": "^4.1.2",
     "tar": "^7.4.1",
     "unzip-stream": "^0.3.1",
