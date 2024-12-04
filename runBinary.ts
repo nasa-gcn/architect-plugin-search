@@ -19,6 +19,7 @@ export const launchBinary: SearchEngineLauncherFunction<{
   console.log('Spawning', bin, ...args)
   const child = await spawn(bin, args, {
     stdio: ['ignore', 'ignore', 'inherit'],
+    shell: true,
   })
 
   return {
