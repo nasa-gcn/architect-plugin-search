@@ -7,11 +7,13 @@
  */
 
 export function cloudformationResources({
+  autoSoftwareUpdateEnabled,
   availabilityZoneCount,
   dedicatedMasterCount,
   dedicatedMasterType,
   instanceCount,
   instanceType,
+  offPeakWindowEnabled,
   volumeSize,
 }: Record<string, string | undefined>) {
   if (!availabilityZoneCount)
@@ -80,6 +82,7 @@ export function cloudformationResources({
             },
           ],
         },
+        AutoSoftwareUpdateEnabled: Boolean(autoSoftwareUpdateEnabled),
         ClusterConfig: {
           DedicatedMasterCount,
           DedicatedMasterEnabled,
@@ -106,6 +109,9 @@ export function cloudformationResources({
           },
         },
         NodeToNodeEncryptionOptions: { Enabled: true },
+        OffPeakWindowOptions: {
+          Enabled: Boolean(offPeakWindowEnabled),
+        },
       },
     },
   }
