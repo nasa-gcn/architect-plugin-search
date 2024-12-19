@@ -22,6 +22,8 @@ Pair this pacakge with [@nasa-gcn/architect-functions-search](https://github.com
 3.  Amazon offers two flavors of managed OpenSearch: OpenSearch Service and OpenSearch Serverless. By default, this plugin will provision OpenSearch Serverless. If you want to use OpenSearch Service instead, then add a `@search` section to your `app.arc` file:
 
         @search
+        # Enable automatic software updates (disabled by default).
+        autoSoftwareUpdateEnabled true
         # See https://docs.aws.amazon.com/opensearch-service/latest/developerguide/supported-instance-types.html for supported instance types
         instanceType t3.small.search
         instanceCount 2
@@ -30,6 +32,8 @@ Pair this pacakge with [@nasa-gcn/architect-functions-search](https://github.com
         # master nodes are disabled.
         dedicatedMasterCount 3
         dedicatedMasterType t3.small.search
+        # Enable off-peak window for software updates (disabled by default).
+        offPeakWindowEnabled true
         # Use OpenSearch in sandbox mode; default is Elasticsearch.
         sandboxEngine opensearch
 
