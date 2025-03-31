@@ -9,6 +9,7 @@
 import Dockerode from 'dockerode'
 import { fork } from 'node:child_process'
 import { type SearchEngineLauncherFunction } from './run.js'
+import { promisify } from 'node:util'
 
 const [, , command, jsonifiedArgs] = process.argv
 
@@ -20,6 +21,8 @@ if (command === 'launch-docker-subprocess') {
       : 'opensearchproject/opensearch:2.11.0'
   console.log('Launching Docker container', Image)
   const docker = new Dockerode()
+
+  await promisify(docker.modem.followProgress)(await docker.pull(Image))
 
   const container = await docker.createContainer({
     Env: [...options, 'path.data=/var/lib/search', 'path.logs=/var/log/search'],
