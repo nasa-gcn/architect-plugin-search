@@ -13,7 +13,10 @@ import { mkdtemp } from 'node:fs/promises'
 import { mkdirP, temp } from './paths.js'
 import rimraf from 'rimraf'
 import type { SandboxEngine } from './engines.js'
-import { UnexpectedResolveError, neverResolve } from './promises.js'
+import {
+  UnexpectedResolveError,
+  neverResolve,
+} from '@nasa-gcn/architect-plugin-utils'
 import { launchBinary } from './runBinary.js'
 import { launchDocker } from './runDocker.js'
 
