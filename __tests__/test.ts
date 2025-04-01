@@ -35,6 +35,9 @@ engines.forEach((engine) =>
         // FIXME: replace with import.meta.resolve once it is stable in Node.js
         const cwd = join(dirname(fileURLToPath(import.meta.url)), engine)
 
+        // Give ports some time to close
+        await sleep(1000)
+
         process = execa('arc', ['sandbox'], {
           cwd,
           preferLocal: true,
