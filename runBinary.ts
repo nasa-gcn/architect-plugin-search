@@ -22,11 +22,20 @@ export const launchBinary: SearchEngineLauncherFunction<{
     shell: true,
   })
 
+  async function kill() {
+    console.log('Killing child process')
+    child.kill('SIGKILL')
+  }
+
+  const signals = ['message', 'SIGTERM', 'SIGINT']
+  signals.forEach((signal) => {
+    process.on(signal, async () => {
+      await kill()
+    })
+  })
+
   return {
-    async kill() {
-      console.log('Killing child process')
-      child.kill()
-    },
+    kill,
     async waitUntilStopped() {
       await untilTerminated(child)
     },
