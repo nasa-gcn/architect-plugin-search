@@ -3,10 +3,7 @@ import { dirname, join } from 'node:path'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { ExecaError, execa } from 'execa'
-
-async function sleep(timeout: number) {
-  return new Promise((resolve) => setTimeout(resolve, timeout))
-}
+import { sleep } from '@nasa-gcn/architect-plugin-utils'
 
 async function fetchRetry(
   ...props: Parameters<typeof fetch>
