@@ -50,6 +50,7 @@ if (command === 'launch-docker-subprocess') {
   })
 
   await container.wait()
+  process.exit()
 }
 
 export const launchDocker: SearchEngineLauncherFunction = async ({
