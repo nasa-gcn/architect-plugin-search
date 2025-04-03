@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import treeKill from 'tree-kill'
 import { spawn, untilTerminated } from './processes.js'
 import { type SearchEngineLauncherFunction } from './run.js'
 
@@ -26,7 +27,7 @@ export const launchBinary: SearchEngineLauncherFunction<{
 
   async function kill() {
     console.log('Killing child process')
-    child.kill()
+    if (child.pid) treeKill(child.pid)
   }
 
   const signals = ['message', 'SIGTERM', 'SIGINT']
