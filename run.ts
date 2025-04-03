@@ -61,11 +61,12 @@ export async function launch({
   const { kill, waitUntilStopped } = await (bin
     ? launchBinary({ bin, ...props })
     : launchDocker(props))
+  const untilStopped = waitUntilStopped()
 
   try {
     await Promise.race([
       waitPort({ port, protocol: 'http' }),
-      neverResolve(waitUntilStopped()),
+      neverResolve(untilStopped),
     ])
   } catch (e) {
     if (e instanceof UnexpectedResolveError) {
@@ -80,7 +81,7 @@ export async function launch({
     port,
     async stop() {
       await kill()
-      await waitUntilStopped()
+      await untilStopped
       console.log('Removing temporary directory')
       await rimraf(tempDir)
     },
