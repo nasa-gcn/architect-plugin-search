@@ -76,19 +76,23 @@ engines.forEach((engine) =>
 
       afterEach(async () => {
         if (process) {
+          console.log('assert.ok(process.kill(signal))')
           assert.ok(process.kill(signal))
           // Make sure arc sandbox is dead
+          console.log('await process')
           try {
             await process
           } catch (e) {
             if (!(e instanceof ExecaError)) throw e
           }
           // Give subprocesses some time to die
+          console.log('await sleep(1000)')
           await sleep(1000)
 
           // Make sure that arc sandbox and opensearch/elasticseasrch are both
           // down and not responding to HTTP requests any more
           for (const port of [3333, 9200]) {
+            console.log('port', port)
             await assert.rejects(
               fetch(`http://localhost:${port}/`),
               TypeError,
