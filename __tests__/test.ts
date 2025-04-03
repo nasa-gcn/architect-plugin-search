@@ -39,7 +39,7 @@ describe('launchDockerSubprocess', () => {
     await fetchRetry(url)
     await kill()
     await waitUntilStopped()
-    assert.rejects(fetch(url), TypeError)
+    await assert.rejects(fetch(url), TypeError)
   })
 })
 
@@ -85,7 +85,11 @@ engines.forEach((engine) =>
           // Make sure that arc sandbox and opensearch/elasticseasrch are both
           // down and not responding to HTTP requests any more
           for (const port of [3333, 9200]) {
-            assert.rejects(fetch(`http://localhost:${port}/`), TypeError)
+            await assert.rejects(
+              fetch(`http://localhost:${port}/`),
+              TypeError,
+              `port ${port} must be closed`
+            )
           }
         }
       })
