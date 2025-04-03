@@ -19,7 +19,9 @@ export const launchBinary: SearchEngineLauncherFunction<{
   console.log('Spawning', bin, ...args)
   const child = await spawn(bin, args, {
     stdio: ['ignore', 'ignore', 'inherit'],
-    shell: true,
+    // On Windows, the program must be launched in a shell because it is a .bat file. See
+    // https://nodejs.org/docs/latest/api/child_process.html#spawning-bat-and-cmd-files-on-windows
+    shell: process.platform === 'win32',
   })
 
   async function kill() {
