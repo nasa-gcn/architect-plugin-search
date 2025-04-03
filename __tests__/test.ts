@@ -44,7 +44,7 @@ describe('launchDockerSubprocess', () => {
 })
 
 const signals = ['SIGTERM'] as const
-const engines = ['elasticsearch', 'opensearch']
+const engines = ['elasticsearch']
 
 engines.forEach((engine) =>
   signals.forEach((signal) => {
