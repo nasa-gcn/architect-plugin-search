@@ -66,7 +66,10 @@ engines.forEach((engine) =>
 
         return new Promise<void>((resolve) => {
           process?.stdout?.on('data', (chunk) => {
-            if (chunk.includes('Ran Sandbox startup plugin in')) resolve()
+            if (chunk.includes('Ran Sandbox startup plugin in')) {
+              console.log('***Sandbox is READY')
+              resolve()
+            }
           })
         })
       })
@@ -96,6 +99,7 @@ engines.forEach((engine) =>
       })
 
       test('connection was alive', async () => {
+        console.log("fetchRetry('http://localhost:3333/')")
         const response = await fetchRetry('http://localhost:3333/')
         const result = await response.json()
         assert.deepStrictEqual(result?.meta.connection.status, 'alive')
