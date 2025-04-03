@@ -59,7 +59,14 @@ engines.forEach((engine) =>
           cwd,
           preferLocal: true,
           forceKillAfterDelay: false,
-          stdio: 'inherit',
+          stderr: 'inherit',
+          stdout: ['inherit', 'pipe'],
+        })
+
+        return new Promise<void>((resolve) => {
+          process?.stdout?.on('data', (chunk) => {
+            if (chunk.includes('Ran Sandbox startup plugin in')) resolve()
+          })
         })
       })
 
