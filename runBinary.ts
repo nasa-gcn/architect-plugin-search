@@ -26,7 +26,7 @@ export const launchBinary: SearchEngineLauncherFunction<{
 
   async function kill() {
     console.log('Killing child process')
-    child.kill()
+    child.kill('SIGKILL')
   }
 
   const signals = ['message', 'SIGTERM', 'SIGINT']
