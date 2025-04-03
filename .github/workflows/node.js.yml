@@ -10,4 +10,5 @@ jobs:
   build:
     uses: nasa-gcn/.github/.github/workflows/node.yml@main
     with:
+      docker: true
       test-options:
