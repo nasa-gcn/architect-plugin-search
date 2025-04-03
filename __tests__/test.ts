@@ -101,6 +101,7 @@ engines.forEach((engine) =>
       test('connection was alive', async () => {
         console.log("fetchRetry('http://localhost:3333/')")
         const response = await fetchRetry('http://localhost:3333/')
+        console.log('response.json()')
         const result = await response.json()
         assert.deepStrictEqual(result?.meta.connection.status, 'alive')
       })
