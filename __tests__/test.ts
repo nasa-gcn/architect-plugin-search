@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { ExecaError, execa } from 'execa'
 import { sleep } from '@nasa-gcn/architect-plugin-utils'
 import { launchDockerSubprocess } from '../docker.js'
+import { type Writable } from 'node:stream'
 
 async function fetchRetry(
   ...props: Parameters<typeof fetch>
@@ -46,6 +47,7 @@ describe('launchDockerSubprocess', () => {
 
 const signals = ['SIGTERM'] as const
 const engines = ['elasticsearch']
+let stdin: Writable | null
 
 engines.forEach((engine) =>
   signals.forEach((signal) => {
@@ -60,9 +62,11 @@ engines.forEach((engine) =>
           cwd,
           preferLocal: true,
           forceKillAfterDelay: false,
+          stdin: 'pipe',
           stderr: 'inherit',
           stdout: ['inherit', 'pipe'],
         })
+        stdin = process.stdin
 
         return new Promise<void>((resolve) => {
           process?.stdout?.on('data', (chunk) => {
@@ -76,8 +80,10 @@ engines.forEach((engine) =>
 
       afterEach(async () => {
         if (process) {
-          console.log('assert.ok(process.kill(signal))')
-          assert.ok(process.kill(signal))
+          // console.log('assert.ok(process.kill(signal))')
+          // assert.ok(process.kill(signal))
+          assert.ok('stdin.write')
+          stdin?.write('\u0003')
           // Make sure arc sandbox is dead
           console.log('await process')
           try {
