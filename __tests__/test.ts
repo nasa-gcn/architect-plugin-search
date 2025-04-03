@@ -59,6 +59,7 @@ engines.forEach((engine) =>
           cwd,
           preferLocal: true,
           forceKillAfterDelay: false,
+          stdin: 'pipe',
           stderr: 'inherit',
           stdout: ['inherit', 'pipe'],
         })
@@ -72,6 +73,8 @@ engines.forEach((engine) =>
 
       afterEach(async () => {
         if (process) {
+          // Type Ctrl-C into Architect's stdin
+          process.stdin?.write('\u0003')
           assert.ok(process.kill(signal))
           // Make sure arc sandbox is dead
           try {
