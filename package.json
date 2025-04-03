@@ -24,7 +24,7 @@
     "test": "node --test"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "dependencies": {
     "@nasa-gcn/architect-functions-search": "^1.0.0",
