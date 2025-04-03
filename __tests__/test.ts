@@ -13,6 +13,7 @@ async function fetchRetry(
   try {
     response = await fetch(...props)
   } catch (e) {
+    console.error(e)
     if (!(e instanceof TypeError)) throw e
   }
 
