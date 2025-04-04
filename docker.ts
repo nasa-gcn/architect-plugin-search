@@ -31,7 +31,6 @@ if (command === 'launch-docker-subprocess') {
   const signals = ['message', 'SIGTERM', 'SIGINT']
   signals.forEach((signal) => {
     process.on(signal, async () => {
-      console.log('killing')
       await container.kill()
     })
   })
