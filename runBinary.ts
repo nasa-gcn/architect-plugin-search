@@ -9,6 +9,7 @@
 import treeKill from 'tree-kill'
 import { spawn, untilTerminated } from './processes.js'
 import { type SearchEngineLauncherFunction } from './run.js'
+import omit from 'lodash/omit.js'
 
 export const launchBinary: SearchEngineLauncherFunction<{
   bin: string
@@ -23,6 +24,8 @@ export const launchBinary: SearchEngineLauncherFunction<{
     // On Windows, the program must be launched in a shell because it is a .bat file. See
     // https://nodejs.org/docs/latest/api/child_process.html#spawning-bat-and-cmd-files-on-windows
     shell: process.platform === 'win32',
+    // Use bundled JVM, not system JVM, in case system JVM is too old
+    env: omit(process.env, ['JAVA_HOME']),
   })
 
   async function kill() {
