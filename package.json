@@ -44,7 +44,7 @@
     "@architect/architect": "^11.2.0",
     "@aws-sdk/client-ssm": "^3.777.0",
     "@nasa-gcn/eslint-config-gitignore": "^0.0.2",
-    "@tsconfig/node14": "^14.1.2",
+    "@tsconfig/node20": "^20.1.5",
     "@types/architect__utils": "^4.0.0",
     "@types/dockerode": "^3.3.23",
     "@types/lodash": "^4.17.16",
