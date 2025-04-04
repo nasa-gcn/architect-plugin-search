@@ -13,12 +13,10 @@ import { mkdtemp } from 'node:fs/promises'
 import { mkdirP, temp } from './paths.js'
 import rimraf from 'rimraf'
 import type { SandboxEngine } from './engines.js'
-import {
-  UnexpectedResolveError,
-  neverResolve,
-} from '@nasa-gcn/architect-plugin-utils'
+import { neverResolve } from '@nasa-gcn/architect-plugin-utils'
 import { launchBinary } from './runBinary.js'
 import { launchDocker } from './runDocker.js'
+import { update } from './updater.js'
 
 export type SearchEngineLauncherFunction<T = object> = (
   props: T & {
@@ -63,17 +61,15 @@ export async function launch({
     : launchDocker(props))
   const untilStopped = waitUntilStopped()
 
+  update.update(`Waiting for localhost:${port}`)
   try {
     await Promise.race([
-      waitPort({ port, protocol: 'http' }),
+      waitPort({ port, protocol: 'http', output: 'silent' }),
       neverResolve(untilStopped),
     ])
   } catch (e) {
-    if (e instanceof UnexpectedResolveError) {
-      throw new Error('Search engine terminated unexpectedly')
-    } else {
-      throw e
-    }
+    update.err('Search engine terminated unexpectedly')
+    throw e
   }
 
   return {
@@ -82,7 +78,7 @@ export async function launch({
     async stop() {
       await kill()
       await untilStopped
-      console.log('Removing temporary directory')
+      update.update('Removing temporary directory')
       await rimraf(tempDir)
     },
   }
