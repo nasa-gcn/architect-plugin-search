@@ -14,9 +14,10 @@ import { Extract as unzip } from 'unzip-stream'
 import { x as untar } from 'tar'
 import { cache, exists, mkdirP } from './paths.js'
 import { SandboxEngine, manifest } from './engines.js'
+import { update } from './updater.js'
 
 async function download(url: string) {
-  console.log('Downloading', url, 'to', cache)
+  update.update('Downloading', url, 'to', cache)
   await mkdirP(cache)
   const { body } = await fetch(url, { cachePath: cache })
   return body
@@ -30,7 +31,7 @@ export async function install(engine: SandboxEngine) {
       entry.engine === engine && entry.arch === arch && entry.type === type
   )?.url
   if (!url) {
-    console.warn(
+    update.warn(
       `No ${engine} binary is available for your OS type (${type}) and architecture (${arch}).`
     )
     return
@@ -62,7 +63,7 @@ export async function install(engine: SandboxEngine) {
       throw new Error('unknown archive type')
     }
 
-    console.log('Extracting to', extractPath)
+    update.update('Extracting to', extractPath)
     await mkdirP(extractPath)
     await pipeline(stream, extract)
   }

@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { updater } from '@architect/utils'
 import Dockerode, { type ContainerCreateOptions } from 'dockerode'
 import { fork } from 'node:child_process'
 import { promisify } from 'node:util'
@@ -18,7 +19,6 @@ type Options = Omit<ContainerCreateOptions, 'Image'> &
 if (command === 'launch-docker-subprocess') {
   const options: Options = JSON.parse(jsonifiedArgs)
   ;(options.HostConfig ??= {}).AutoRemove = true
-  console.log('Launching Docker container')
   const docker = new Dockerode()
 
   await promisify(docker.modem.followProgress)(await docker.pull(options.Image))
@@ -40,20 +40,23 @@ if (command === 'launch-docker-subprocess') {
 }
 
 export function launchDockerSubprocess(options: Options) {
+  const update = updater('Docker')
+  update.start(`Launching container ${options.Image}`)
   const subprocess = fork(new URL(import.meta.url), [
     'launch-docker-subprocess',
     JSON.stringify(options),
   ])
+  update.done(`Launched container ${options.Image}`)
 
   return {
     async kill() {
-      console.log('Killing Docker container')
+      update.update(`Stopping container ${options.Image}`)
       subprocess.send({ action: 'kill' })
     },
     async waitUntilStopped() {
       return new Promise<void>((resolve) => {
         subprocess.on('exit', () => {
-          console.log('Docker container exited')
+          update.done(`Stopped container ${options.Image}`)
           resolve()
         })
       })

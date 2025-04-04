@@ -20,6 +20,7 @@ import {
   cloudformationResources as serviceCloudformationResources,
   services as serviceServices,
 } from './service.js'
+import { update } from './updater.js'
 
 /**
  * Convert a string to a suitable name for an OpenSearch Serverless collection.
@@ -48,7 +49,7 @@ async function executeSearchRequests(cwd: string) {
   //Load api call file and run all api calls to cluster
   const apiPath = join(cwd, searchApiFile)
   if (await exists(apiPath)) {
-    console.log(`Found ${searchApiFile} file, running it...`)
+    update.update(`Found ${searchApiFile} file, running it...`)
     let result = (await import(pathToFileURL(apiPath).toString())).default
     const client = await getSearchClient()
 
@@ -124,13 +125,16 @@ export const sandbox = {
       },
     },
   }) {
+    update.start('Launching OpenSearch/ElasticSearch')
     const engine = getEngine(getConfig(arc).sandboxEngine)
     local = await launch({ engine })
     await executeSearchRequests(cwd)
     await populate(cwd, { node: local.url })
+    update.done('OpenSearch/ElasticSearch is ready')
   },
 
   async end() {
     await local.stop()
+    update.done('OpenSearch/ElasticSearch is stopped')
   },
 }

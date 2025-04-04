@@ -13,6 +13,7 @@ import { Client } from '@opensearch-project/opensearch'
 import type { ClientOptions } from '@opensearch-project/opensearch'
 import { exists } from './paths.js'
 import chunk from 'lodash/chunk.js'
+import { update } from './updater.js'
 
 const jsonFilename = 'sandbox-search.json'
 const jsFilename = 'sandbox-search.js'
@@ -23,10 +24,10 @@ async function getData(path: string): Promise<object[]> {
   const jsPath = join(path, jsFilename)
 
   if (await exists(jsonPath)) {
-    console.log(`Loading search records from ${jsonPath}`)
+    update.update(`Loading search records from ${jsonPath}`)
     result = JSON.parse(await readFile(jsonPath, { encoding: 'utf-8' }))
   } else if (await exists(jsPath)) {
-    console.log(`Loading search records from ${jsPath}`)
+    update.update(`Loading search records from ${jsPath}`)
     result = (await import(pathToFileURL(jsPath).toString())).default
     if (typeof result === 'function') {
       result = result()
@@ -36,7 +37,7 @@ async function getData(path: string): Promise<object[]> {
     }
   }
   if (result) {
-    console.log(`Loaded ${result.length} search records`)
+    update.update(`Loaded ${result.length} search records`)
   }
   return result
 }

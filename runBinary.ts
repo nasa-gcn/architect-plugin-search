@@ -10,6 +10,7 @@ import treeKill from 'tree-kill'
 import { spawn, untilTerminated } from './processes.js'
 import { type SearchEngineLauncherFunction } from './run.js'
 import omit from 'lodash/omit.js'
+import { update } from './updater.js'
 
 export const launchBinary: SearchEngineLauncherFunction<{
   bin: string
@@ -18,7 +19,7 @@ export const launchBinary: SearchEngineLauncherFunction<{
     (opt) => `-E${opt}`
   )
 
-  console.log('Spawning', bin, ...args)
+  update.status('Spawning', bin, ...args)
   const child = await spawn(bin, args, {
     stdio: ['ignore', 'ignore', 'inherit'],
     // On Windows, the program must be launched in a shell because it is a .bat file. See
@@ -29,7 +30,7 @@ export const launchBinary: SearchEngineLauncherFunction<{
   })
 
   async function kill() {
-    console.log('Killing child process')
+    update.update('Killing child process')
     if (child.pid) treeKill(child.pid)
   }
 
