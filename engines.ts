@@ -43,18 +43,18 @@ export const manifest = [
     engine: 'opensearch',
     type: 'Linux',
     arch: 'x64',
-    url: 'https://artifacts.opensearch.org/releases/bundle/opensearch/2.19.1/opensearch-2.19.1-linux-x64.tar.gz',
+    url: 'https://artifacts.opensearch.org/releases/bundle/opensearch/2.11.0/opensearch-2.11.0-linux-x64.tar.gz',
   },
   {
     engine: 'opensearch',
     type: 'Linux',
     arch: 'arm64',
-    url: 'https://artifacts.opensearch.org/releases/bundle/opensearch/2.19.1/opensearch-2.19.1-linux-arm64.tar.gz',
+    url: 'https://artifacts.opensearch.org/releases/bundle/opensearch/2.11.0/opensearch-2.11.0-linux-arm64.tar.gz',
   },
   {
     engine: 'opensearch',
     type: 'Windows_NT',
     arch: 'x64',
-    url: 'https://artifacts.opensearch.org/releases/bundle/opensearch/2.19.1/opensearch-2.19.1-windows-x64.zip',
+    url: 'https://artifacts.opensearch.org/releases/bundle/opensearch/2.11.0/opensearch-2.11.0-windows-x64.zip',
   },
 ]
