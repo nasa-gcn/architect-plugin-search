@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { launchDockerSubprocess } from '@nasa-gcn/architect-plugin-utils'
 import { type SearchEngineLauncherFunction } from './run.js'
-import { launchDockerSubprocess } from './docker.js'
 
 export const launchDocker: SearchEngineLauncherFunction = async ({
   dataDir,
