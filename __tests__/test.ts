@@ -3,45 +3,7 @@ import { dirname, join } from 'node:path'
 import { afterEach, beforeEach, describe, test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { ExecaError, execa } from 'execa'
-import { sleep } from '@nasa-gcn/architect-plugin-utils'
-import { launchDockerSubprocess } from '../docker.js'
-
-async function fetchRetry(
-  ...props: Parameters<typeof fetch>
-): ReturnType<typeof fetch> {
-  let response
-  try {
-    response = await fetch(...props)
-  } catch (e) {
-    if (!(e instanceof TypeError)) throw e
-  }
-
-  if (response?.ok) {
-    return response
-  } else {
-    await sleep(1000)
-    return await fetchRetry(...props)
-  }
-}
-
-describe('launchDockerSubprocess', () => {
-  test('exits when killed programmatically', async () => {
-    const port = 9200
-    const url = `http://localhost:${port}/`
-    const { kill, waitUntilStopped } = launchDockerSubprocess({
-      Image: 'httpd',
-      HostConfig: {
-        PortBindings: {
-          '80/tcp': [{ HostIP: '127.0.0.1', HostPort: `${port}` }],
-        },
-      },
-    })
-    await fetchRetry(url)
-    await kill()
-    await waitUntilStopped()
-    await assert.rejects(fetch(url), TypeError)
-  })
-})
+import { fetchRetry, sleep } from '@nasa-gcn/architect-plugin-utils'
 
 const signals = ['SIGTERM'] as const
 const engines = ['elasticsearch', 'opensearch']
