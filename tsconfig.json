@@ -3,7 +3,6 @@
   "compilerOptions": {
     "incremental": true,
     "noEmit": true,
-    "resolveJsonModule": true,
     "module": "esnext",
     "target": "es2022"
   }
