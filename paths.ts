@@ -8,10 +8,9 @@
 
 import { access, mkdir } from 'node:fs/promises'
 import envPaths from 'env-paths'
-import { name } from './package.json'
 import type { PathLike } from 'node:fs'
 
-export const { cache, temp } = envPaths(name)
+export const { cache, temp } = envPaths('@nasa-gcn/architect-plugin-search')
 
 export async function mkdirP(path: PathLike) {
   await mkdir(path, { recursive: true })
