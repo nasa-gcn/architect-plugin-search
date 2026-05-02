@@ -30,7 +30,7 @@
     "@nasa-gcn/architect-functions-search": "^1.0.0",
     "@nasa-gcn/architect-plugin-utils": "^0.5.2",
     "@opensearch-project/opensearch": "^2.2.0",
-    "dockerode": "^4.0.0",
+    "dockerode": "^5.0.0",
     "env-paths": "^3.0.0",
     "lodash": "^4.17.21",
     "make-fetch-happen": "^14.0.0",
