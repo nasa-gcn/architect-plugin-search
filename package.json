@@ -4,7 +4,7 @@
   "version": "1.8.0",
   "repository": {
     "type": "git",
-    "url": "github:nasa-gcn/architect-plugin-search"
+    "url": "git+https://github.com/nasa-gcn/architect-plugin-search.git"
   },
   "license": "Apache-2.0",
   "contributors": [
