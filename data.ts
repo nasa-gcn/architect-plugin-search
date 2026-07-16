@@ -53,3 +53,23 @@ export async function populate(path: string, opts: ClientOptions) {
     }
   }
 }
+
+export async function createMapping(
+  index: string,
+  mappedProps: { [key: string]: string },
+  opts: ClientOptions
+) {
+  const properties: { [key: string]: { type: string } } = {}
+  Object.entries(mappedProps).forEach(([item, type]) => {
+    properties[item] = { type }
+  })
+  const client = new Client(opts)
+  await client.indices.create({
+    index,
+    body: {
+      mappings: {
+        properties,
+      },
+    },
+  })
+}

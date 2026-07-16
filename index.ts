@@ -10,7 +10,7 @@ import { exists } from './paths.js'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { launch } from './run.js'
-import { populate } from './data.js'
+import { createMapping, populate } from './data.js'
 import { search as getSearchClient } from '@nasa-gcn/architect-functions-search'
 import {
   cloudformationResources as serverlessCloudformationResources,
@@ -129,6 +129,16 @@ export const sandbox = {
     const engine = getEngine(getConfig(arc).sandboxEngine)
     local = await launch({ engine })
     await executeSearchRequests(cwd)
+
+    if (arc['search-index-mapping']) {
+      for (const item of arc['search-index-mapping']) {
+        const indexName = Object.keys(item)[0]
+        await createMapping(indexName, item[indexName], {
+          node: local.url,
+        })
+      }
+    }
+
     await populate(cwd, { node: local.url })
     update.done('OpenSearch/ElasticSearch is ready')
   },
