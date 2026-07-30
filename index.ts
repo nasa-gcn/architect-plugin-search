@@ -10,7 +10,7 @@ import { exists } from './paths.js'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { launch } from './run.js'
-import { populate } from './data.js'
+import { initializeIndices, populate } from './data.js'
 import { search as getSearchClient } from '@nasa-gcn/architect-functions-search'
 import {
   cloudformationResources as serverlessCloudformationResources,
@@ -102,8 +102,10 @@ export const deploy = {
     }
   },
   // @ts-expect-error: The Architect plugins API has no type definitions.
-  async end({ inventory }) {
+  async end({ inventory, arc }) {
+    const config = getConfig(arc)
     executeSearchRequests(inventory.inv._project.cwd)
+    if (config.templateFile) await initializeIndices(config.templateFile)
   },
 }
 
@@ -129,6 +131,9 @@ export const sandbox = {
     const engine = getEngine(getConfig(arc).sandboxEngine)
     local = await launch({ engine })
     await executeSearchRequests(cwd)
+    const config = getConfig(arc)
+    if (config.templateFile)
+      await initializeIndices(config.templateFile, { node: local.url })
     await populate(cwd, { node: local.url })
     update.done('OpenSearch/ElasticSearch is ready')
   },

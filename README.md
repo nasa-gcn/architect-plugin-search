@@ -68,6 +68,18 @@ Pair this pacakge with [@nasa-gcn/architect-functions-search](https://github.com
             ]
         }
 
+5.  If you want to define more specific index mappings/settings, you can include `templateFile` in your `@search` section. For more details, see [Index Templates](https://docs.opensearch.org/latest/im-plugin/index-templates/).
+
+        @search
+        autoSoftwareUpdateEnabled true
+        instanceType t3.small.search
+        instanceCount 2
+        availabilityZoneCount 2
+        dedicatedMasterCount 3
+        dedicatedMasterType t3.small.search
+        offPeakWindowEnabled true
+        templateFile index-template.json
+
 ## Connecting to OpenSearch from your application
 
 In your Architect application, use the [@nasa-gcn/architect-functions-search](https://github.com/nasa-gcn/architect-functions-search) package to connect to your OpenSearch instance. To install the package, run:
