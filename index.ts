@@ -21,6 +21,10 @@ import {
   services as serviceServices,
 } from './service.js'
 import { update } from './updater.js'
+import {
+  CloudFormationClient,
+  DescribeStacksCommand,
+} from '@aws-sdk/client-cloudformation'
 
 /**
  * Convert a string to a suitable name for an OpenSearch Serverless collection.
@@ -45,13 +49,40 @@ function getConfig(arc: {
 
 const searchApiFile = 'postdeploy-search.js'
 
-async function executeSearchRequests(cwd: string) {
+interface RemoteProps {
+  stackName: string
+  region: string
+  sig4service: string
+}
+
+async function executeSearchRequests(cwd: string, props?: RemoteProps) {
   //Load api call file and run all api calls to cluster
   const apiPath = join(cwd, searchApiFile)
   if (await exists(apiPath)) {
     update.update(`Found ${searchApiFile} file, running it...`)
     let result = (await import(pathToFileURL(apiPath).toString())).default
-    const client = await getSearchClient()
+    let client
+    if (props?.stackName) {
+      try {
+        const cloudFormationClient = new CloudFormationClient({
+          region: props.region,
+        })
+        const node = (
+          await cloudFormationClient.send(
+            new DescribeStacksCommand({ StackName: props.stackName })
+          )
+        ).Stacks?.[0]?.Outputs?.find(
+          (x) => x.OutputKey == 'OpenSearchDomainEndpoint'
+        )?.OutputValue
+        if (!node) throw Error('Node not found')
+        client = await getSearchClient({ node, sig4Service: props.sig4service })
+      } catch (error) {
+        update.warn(error)
+        return
+      }
+    } else {
+      client = await getSearchClient()
+    }
 
     // result should be a function that returns a promise
     if (typeof result === 'function') {
@@ -78,16 +109,21 @@ function addTransforms(
 export const deploy = {
   // @ts-expect-error: The Architect plugins API has no type definitions.
   start({ cloudformation, inventory, arc, stage }) {
-    let resources
+    let resources, openSearchClientConfig
     const config = getConfig(arc)
     if (config.availabilityZoneCount) {
       resources = serviceCloudformationResources(config)
+      openSearchClientConfig = serviceServices
     } else {
       const { app } = inventory.inv
       const collectionName = toCollectionName(`${app}-${stage}`)
       resources = serverlessCloudformationResources(collectionName)
+      openSearchClientConfig = serverlessServices
     }
     Object.assign(cloudformation.Resources, resources)
+    cloudformation.Outputs.OpenSearchDomainEndpoint =
+      openSearchClientConfig.node
+
     addTransforms(cloudformation, 'AWS::LanguageExtensions')
     return cloudformation
   },
@@ -102,8 +138,15 @@ export const deploy = {
     }
   },
   // @ts-expect-error: The Architect plugins API has no type definitions.
-  async end({ inventory }) {
-    executeSearchRequests(inventory.inv._project.cwd)
+  async end({ stackName, inventory, arc }) {
+    const config = getConfig(arc)
+    executeSearchRequests(inventory.inv._project.cwd, {
+      stackName,
+      region: inventory.inv.aws.region,
+      sig4service: config.search
+        ? serviceServices.sig4service
+        : serverlessServices.sig4service,
+    })
   },
 }
 
