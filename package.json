@@ -27,6 +27,7 @@
     "node": ">=22"
   },
   "dependencies": {
+    "@aws-sdk/client-cloudformation": "^3.1103.0",
     "@nasa-gcn/architect-functions-search": "^1.0.0",
     "@nasa-gcn/architect-plugin-utils": "^0.5.2",
     "@opensearch-project/opensearch": "^2.2.0",
