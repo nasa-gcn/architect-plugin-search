@@ -21,7 +21,6 @@ import {
   services as serviceServices,
 } from './service.js'
 import { update } from './updater.js'
-import { Client } from '@opensearch-project/opensearch'
 import {
   CloudFormationClient,
   DescribeStacksCommand,
@@ -50,32 +49,36 @@ function getConfig(arc: {
 
 const searchApiFile = 'postdeploy-search.js'
 
-async function executeSearchRequests(
-  cwd: string,
-  stackName?: string,
-  region?: string
-) {
+interface RemoteProps {
+  stackName: string
+  region: string
+  sig4service: string
+}
+
+async function executeSearchRequests(cwd: string, props?: RemoteProps) {
   //Load api call file and run all api calls to cluster
   const apiPath = join(cwd, searchApiFile)
   if (await exists(apiPath)) {
     update.update(`Found ${searchApiFile} file, running it...`)
     let result = (await import(pathToFileURL(apiPath).toString())).default
     let client
-    if (stackName) {
+    if (props?.stackName) {
       try {
         const cloudFormationClient = new CloudFormationClient({
-          region,
+          region: props.region,
         })
         const node = (
           await cloudFormationClient.send(
-            new DescribeStacksCommand({ StackName: stackName })
+            new DescribeStacksCommand({ StackName: props.stackName })
           )
         ).Stacks?.[0]?.Outputs?.find(
           (x) => x.OutputKey == 'OpenSearchDomainEndpoint'
         )?.OutputValue
-        client = new Client({ node })
+        if (!node) throw Error('Node not found')
+        client = await getSearchClient({ node, sig4Service: props.sig4service })
       } catch (error) {
         update.warn(error)
+        return
       }
     } else {
       client = await getSearchClient()
@@ -135,12 +138,15 @@ export const deploy = {
     }
   },
   // @ts-expect-error: The Architect plugins API has no type definitions.
-  async end({ stackName, inventory }) {
-    executeSearchRequests(
-      inventory.inv._project.cwd,
+  async end({ stackName, inventory, arc }) {
+    const config = getConfig(arc)
+    executeSearchRequests(inventory.inv._project.cwd, {
       stackName,
-      inventory.inv.aws.region
-    )
+      region: inventory.inv.aws.region,
+      sig4service: config.search
+        ? serviceServices.sig4service
+        : serverlessServices.sig4service,
+    })
   },
 }
 
