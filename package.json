@@ -1,7 +1,7 @@
 {
   "name": "@nasa-gcn/architect-plugin-search",
   "description": "Architect plugin for OpenSearch / ElasticSearch",
-  "version": "1.10.2",
+  "version": "1.10.3",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nasa-gcn/architect-plugin-search.git"
@@ -27,7 +27,7 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudformation": "^3.895.0",
+    "@aws-sdk/client-cloudformation": "3.895.0",
     "@nasa-gcn/architect-functions-search": "^1.1.1",
     "@nasa-gcn/architect-plugin-utils": "^0.5.2",
     "@opensearch-project/opensearch": "^2.2.0",
