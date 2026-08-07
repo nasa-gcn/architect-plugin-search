@@ -121,8 +121,11 @@ export const deploy = {
       openSearchClientConfig = serverlessServices
     }
     Object.assign(cloudformation.Resources, resources)
-    cloudformation.Outputs.OpenSearchDomainEndpoint =
-      openSearchClientConfig.node
+    cloudformation.Outputs.OpenSearchDomainEndpoint = {
+      Value: openSearchClientConfig.node,
+      Description:
+        'Endpoint for performing operations on the Opensearch Domain',
+    }
 
     addTransforms(cloudformation, 'AWS::LanguageExtensions')
     return cloudformation
