@@ -75,7 +75,7 @@ async function executeSearchRequests(cwd: string, props?: RemoteProps) {
           (x) => x.OutputKey == 'OpenSearchDomainEndpoint'
         )?.OutputValue
         if (!node) throw Error('Node not found')
-        client = await getSearchClient({ node, sig4Service: props.sig4service })
+        client = await getSearchClient({ node, sig4service: props.sig4service })
       } catch (error) {
         update.warn(error)
         return
@@ -142,11 +142,10 @@ export const deploy = {
   },
   // @ts-expect-error: The Architect plugins API has no type definitions.
   async end({ stackName, inventory, arc }) {
-    const config = getConfig(arc)
     executeSearchRequests(inventory.inv._project.cwd, {
       stackName,
       region: inventory.inv.aws.region,
-      sig4service: config.search
+      sig4service: arc.search
         ? serviceServices.sig4service
         : serverlessServices.sig4service,
     })
