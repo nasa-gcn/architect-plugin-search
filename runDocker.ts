@@ -31,5 +31,5 @@ export const launchDocker: SearchEngineLauncherFunction = async ({
     Image:
       engine === 'elasticsearch'
         ? 'elastic/elasticsearch:8.6.2'
-        : 'opensearchproject/opensearch:2.11.0',
+        : 'opensearchproject/opensearch:2.19.1',
   })
